@@ -778,6 +778,96 @@
     @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
 
+    /* ── STAMP BUTTONS ── */
+    .stamp-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .stamp-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .stamp-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+      letter-spacing: 1.5px;
+    }
+
+    .stamp-arrow {
+      font-size: 13px;
+      color: var(--text-dim);
+      padding-bottom: 30px;
+      flex-shrink: 0;
+    }
+
+    .stamp-btn {
+      width: 100%;
+      padding: 8px 6px;
+      border-radius: 7px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all .18s ease;
+      border: none;
+      outline: none;
+    }
+
+    .stamp-btn.stamp-in {
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      box-shadow: inset 0 0 0 1px rgba(79,142,247,0.35);
+    }
+    .stamp-btn.stamp-in:hover {
+      background: rgba(79,142,247,0.28);
+      box-shadow: inset 0 0 0 1px var(--accent), 0 0 14px rgba(79,142,247,0.25);
+      transform: translateY(-1px);
+    }
+    .stamp-btn.stamp-in:active { transform: translateY(0); }
+
+    .stamp-btn.stamp-out {
+      background: rgba(124,92,252,0.15);
+      color: var(--accent2);
+      box-shadow: inset 0 0 0 1px rgba(124,92,252,0.35);
+    }
+    .stamp-btn.stamp-out:hover {
+      background: rgba(124,92,252,0.28);
+      box-shadow: inset 0 0 0 1px var(--accent2), 0 0 14px rgba(124,92,252,0.25);
+      transform: translateY(-1px);
+    }
+    .stamp-btn.stamp-out:active { transform: translateY(0); }
+
+    .stamp-btn.stamp-lunch {
+      background: rgba(0,229,192,0.1);
+      color: var(--accent3);
+      box-shadow: inset 0 0 0 1px rgba(0,229,192,0.3);
+    }
+    .stamp-btn.stamp-lunch:hover {
+      background: rgba(0,229,192,0.2);
+      box-shadow: inset 0 0 0 1px var(--accent3), 0 0 14px rgba(0,229,192,0.2);
+      transform: translateY(-1px);
+    }
+    .stamp-btn.stamp-lunch:active { transform: translateY(0); }
+
+    /* stamped state */
+    .stamp-btn.stamped.stamp-in  { background: rgba(79,142,247,0.22);  box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .stamp-btn.stamped.stamp-out { background: rgba(124,92,252,0.22); box-shadow: inset 0 0 0 1.5px var(--accent2); }
+    .stamp-btn.stamped.stamp-lunch { background: rgba(0,229,192,0.18); box-shadow: inset 0 0 0 1.5px var(--accent3); }
+
+    @keyframes stampPulse {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    .stamp-btn.pulse { animation: stampPulse .28s ease; }
+
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
@@ -889,17 +979,13 @@
           <div class="stamp-col">
             <div class="stamp-label">TIME IN</div>
             <input type="time" id="timeIn" oninput="updatePreview()">
-            <button class="stamp-btn stamp-in" onclick="stampNow('timeIn')" title="Stamp current time">
-              <span class="stamp-icon">⏱</span> NOW
-            </button>
+            <button class="stamp-btn stamp-in" onclick="stampNow('timeIn', this)">⏱ STAMP IN</button>
           </div>
           <div class="stamp-arrow">→</div>
           <div class="stamp-col">
             <div class="stamp-label">TIME OUT</div>
             <input type="time" id="timeOut" oninput="updatePreview()">
-            <button class="stamp-btn stamp-out" onclick="stampNow('timeOut')" title="Stamp current time">
-              <span class="stamp-icon">⏱</span> NOW
-            </button>
+            <button class="stamp-btn stamp-out" onclick="stampNow('timeOut', this)">⏱ STAMP OUT</button>
           </div>
         </div>
       </div>
@@ -913,17 +999,13 @@
           <div class="stamp-col">
             <div class="stamp-label">BREAK START</div>
             <input type="time" id="lunchIn" oninput="updatePreview()">
-            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchIn')" title="Stamp current time">
-              <span class="stamp-icon">⏱</span> NOW
-            </button>
+            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchIn', this)">⏱ STAMP IN</button>
           </div>
           <div class="stamp-arrow">→</div>
           <div class="stamp-col">
             <div class="stamp-label">BREAK END</div>
             <input type="time" id="lunchOut" oninput="updatePreview()">
-            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchOut')" title="Stamp current time">
-              <span class="stamp-icon">⏱</span> NOW
-            </button>
+            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchOut', this)">⏱ STAMP OUT</button>
           </div>
         </div>
       </div>
@@ -1102,7 +1184,35 @@
       li && lo ? `${hrs.toFixed(2)}h work · lunch excluded` : 'No lunch break';
   }
 
-  // ── SAVE SESSION ──
+  // ── STAMP NOW ──
+  function stampNow(fieldId, btn) {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById(fieldId).value = `${hh}:${mm}`;
+    updatePreview();
+
+    btn.classList.add('stamped', 'pulse');
+    btn.innerHTML = `✓ ${hh}:${mm}`;
+    setTimeout(() => btn.classList.remove('pulse'), 280);
+
+    const labels = { timeIn:'Time In', timeOut:'Time Out', lunchIn:'Break Start', lunchOut:'Break End' };
+    toast(`Stamped ${hh}:${mm} → ${labels[fieldId] || fieldId}`);
+  }
+
+  // ── RESET STAMP BUTTONS ──
+  function resetStampButtons() {
+    const labels = {
+      timeIn: '⏱ STAMP IN', timeOut: '⏱ STAMP OUT',
+      lunchIn: '⏱ STAMP IN', lunchOut: '⏱ STAMP OUT'
+    };
+    ['timeIn','timeOut','lunchIn','lunchOut'].forEach(id => {
+      const btn = document.querySelector(`[onclick*="'${id}'"]`);
+      if (btn) { btn.innerHTML = labels[id]; btn.classList.remove('stamped'); }
+    });
+  }
+
+  // ── SAVE SESSION (with same-day merge) ──
   async function saveSession() {
     const ti = document.getElementById('timeIn').value;
     const to = document.getElementById('timeOut').value;
@@ -1121,43 +1231,93 @@
     const dateStr = pickedDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
 
     const start = parseTime(ti, sessionDateVal);
-    const end = parseTime(to, sessionDateVal);
-    let totalHours = (end - start) / 3600000;
-    if (li && lo) totalHours -= (parseTime(lo, sessionDateVal) - parseTime(li, sessionDateVal)) / 3600000;
+    const end   = parseTime(to, sessionDateVal);
+    let newHours = (end - start) / 3600000;
+    if (li && lo) newHours -= (parseTime(lo, sessionDateVal) - parseTime(li, sessionDateVal)) / 3600000;
 
-    if (totalHours <= 0) {
+    if (newHours <= 0) {
       toast('Total hours must be positive', 'error');
       btn.disabled = false; btn.textContent = '▶ SAVE SESSION'; return;
     }
 
-    // Check if backdated
+    // ── SAME-DAY MERGE: check if a log already exists for this date ──
+    const { data: existing, error: fetchErr } = await db
+      .from('logs').select('*').eq('date', dateStr);
+
+    if (fetchErr) {
+      toast('Error checking existing logs', 'error');
+      btn.disabled = false; btn.textContent = '▶ SAVE SESSION'; return;
+    }
+
     const todayMid = new Date(); todayMid.setHours(0,0,0,0);
     const diff = Math.round((todayMid - pickedDate) / 86400000);
     const isBackdated = diff > 0;
 
-    const log = {
-      date: dateStr,
-      mode: currentMode,
-      time_in: start.toISOString(),
-      time_out: end.toISOString(),
-      lunch_in: li ? parseTime(li, sessionDateVal).toISOString() : null,
-      lunch_out: lo ? parseTime(lo, sessionDateVal).toISOString() : null,
-      total_hours: parseFloat(totalHours.toFixed(2))
-    };
+    if (existing && existing.length > 0) {
+      // Merge: pick earliest time_in, latest time_out, combine lunch, sum hours
+      const prev = existing[0];
+      const prevIn  = new Date(prev.time_in);
+      const prevOut = new Date(prev.time_out);
 
-    const { error } = await db.from('logs').insert(log);
-    if (error) {
-      console.error(error);
-      toast('Error saving session. Check console.', 'error');
+      const mergedIn  = start < prevIn  ? start  : prevIn;
+      const mergedOut = end   > prevOut ? end     : prevOut;
+
+      // Combine lunch: use whichever is set (prefer new if both set)
+      const mergedLunchIn  = (li ? parseTime(li, sessionDateVal) : (prev.lunch_in  ? new Date(prev.lunch_in)  : null));
+      const mergedLunchOut = (lo ? parseTime(lo, sessionDateVal) : (prev.lunch_out ? new Date(prev.lunch_out) : null));
+
+      let mergedHours = (mergedOut - mergedIn) / 3600000;
+      if (mergedLunchIn && mergedLunchOut) {
+        mergedHours -= (mergedLunchOut - mergedLunchIn) / 3600000;
+      }
+
+      const { error: updateErr } = await db.from('logs').update({
+        mode: currentMode,
+        time_in:   mergedIn.toISOString(),
+        time_out:  mergedOut.toISOString(),
+        lunch_in:  mergedLunchIn  ? mergedLunchIn.toISOString()  : null,
+        lunch_out: mergedLunchOut ? mergedLunchOut.toISOString() : null,
+        total_hours: parseFloat(mergedHours.toFixed(2))
+      }).eq('id', prev.id);
+
+      if (updateErr) {
+        toast('Error merging session', 'error');
+      } else {
+        toast(`🔀 Merged with existing · ${mergedHours.toFixed(2)} hrs total for ${dateStr}`);
+        ['timeIn','timeOut','lunchIn','lunchOut'].forEach(id => document.getElementById(id).value = '');
+        // reset stamp buttons text
+        resetStampButtons();
+        setToday();
+        updatePreview();
+        renderLogs();
+      }
+
     } else {
-      const msg = isBackdated
-        ? `Backdated session saved for ${dateStr} · ${totalHours.toFixed(2)} hrs`
-        : `Session saved · ${totalHours.toFixed(2)} hrs logged`;
-      toast(msg);
-      ['timeIn','timeOut','lunchIn','lunchOut'].forEach(id => document.getElementById(id).value = '');
-      setToday();
-      updatePreview();
-      renderLogs();
+      // New log
+      const log = {
+        date: dateStr,
+        mode: currentMode,
+        time_in:  start.toISOString(),
+        time_out: end.toISOString(),
+        lunch_in:  li ? parseTime(li, sessionDateVal).toISOString() : null,
+        lunch_out: lo ? parseTime(lo, sessionDateVal).toISOString() : null,
+        total_hours: parseFloat(newHours.toFixed(2))
+      };
+
+      const { error } = await db.from('logs').insert(log);
+      if (error) {
+        toast('Error saving session. Check console.', 'error');
+      } else {
+        const msg = isBackdated
+          ? `Backdated session saved for ${dateStr} · ${newHours.toFixed(2)} hrs`
+          : `Session saved · ${newHours.toFixed(2)} hrs logged`;
+        toast(msg);
+        ['timeIn','timeOut','lunchIn','lunchOut'].forEach(id => document.getElementById(id).value = '');
+        resetStampButtons();
+        setToday();
+        updatePreview();
+        renderLogs();
+      }
     }
 
     btn.disabled = false;
