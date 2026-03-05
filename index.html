@@ -2,29 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Wonder Time Tracker</title>
+  <title>devOseo-TimeTrack</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Wonder Time Tracker</h1>
+      <h1>devOseo-TimeTrack</h1>
     </header>
 
+    <!-- Controls -->
     <section class="controls">
-      <label>
-        Work Mode:
+      <label>Work Mode:
         <select id="workMode">
           <option value="Office">Office</option>
           <option value="Home">Work From Home</option>
         </select>
       </label>
-      <div class="buttons">
-        <button class="timein" onclick="timeIn()">Time In</button>
-        <button class="timeout" onclick="timeOut()">Time Out</button>
+
+      <div class="time-select">
+        <h3>Work Session</h3>
+        <label>Time In:
+          <input type="time" id="timeIn" />
+        </label>
+        <label>Time Out:
+          <input type="time" id="timeOut" />
+        </label>
       </div>
+
+      <div class="time-select">
+        <h3>Lunch Break</h3>
+        <label>Lunch In:
+          <input type="time" id="lunchIn" />
+        </label>
+        <label>Lunch Out:
+          <input type="time" id="lunchOut" />
+        </label>
+      </div>
+
+      <button class="timein" onclick="saveSession()">Save Session</button>
     </section>
 
+    <!-- Calendar -->
+    <section class="calendar">
+      <h2>Calendar</h2>
+      <input type="month" id="monthPicker" onchange="renderLogs()" />
+    </section>
+
+    <!-- Logs -->
     <section class="logs">
       <h2>Logs</h2>
       <table id="logTable">
@@ -34,6 +59,7 @@
             <th>Mode</th>
             <th>Time In</th>
             <th>Time Out</th>
+            <th>Lunch</th>
             <th>Total Hours</th>
           </tr>
         </thead>
@@ -41,9 +67,12 @@
       </table>
     </section>
 
+    <!-- Reports -->
     <section class="report">
-      <h2>Monthly Report</h2>
+      <h2>Reports</h2>
+      <p id="weeklyHours">Total Hours This Week: 0</p>
       <p id="monthlyHours">Total Hours This Month: 0</p>
+      <p id="ojtProgress">OJT Progress: 0 / 300 hrs (0%)</p>
     </section>
   </div>
   <script src="script.js"></script>
