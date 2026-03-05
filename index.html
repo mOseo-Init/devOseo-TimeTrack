@@ -721,7 +721,63 @@
     }
     .del-btn:hover { color: var(--warn); background: rgba(255,107,53,0.1); }
 
-    /* ── SCROLLBAR ── */
+    input[type="date"] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      color-scheme: dark;
+      width: 100%;
+    }
+
+    input[type="date"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
+    }
+
+    .today-btn {
+      padding: 10px 12px;
+      background: var(--surface3);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: var(--accent3);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s;
+    }
+
+    .today-btn:hover {
+      background: rgba(0,229,192,0.1);
+      border-color: var(--accent3);
+    }
+
+    .backdated-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(255,107,53,0.08);
+      border: 1px solid rgba(255,107,53,0.25);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--warn);
+      animation: fadeIn .3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+
+
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
@@ -809,6 +865,16 @@
     <aside class="session-panel">
       <div class="panel-title">New Session</div>
 
+      <!-- Date Selector -->
+      <div class="time-group">
+        <div class="time-group-label">📅 Session Date</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="date" id="sessionDate" style="flex:1;">
+          <button class="today-btn" onclick="setToday()" title="Reset to today">TODAY</button>
+        </div>
+        <div id="dateTag" style="margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-muted);"></div>
+      </div>
+
       <!-- Mode Toggle -->
       <div class="mode-toggle">
         <button class="mode-btn active" id="btnOffice" onclick="setMode('Office')">🏢 OFFICE</button>
@@ -856,6 +922,11 @@
       </div>
 
       <div class="divider"></div>
+
+      <!-- Backdated warning -->
+      <div class="backdated-banner" id="backdateBanner" style="display:none;">
+        <span>⚠</span><span>Backdated entry — logging for a past date</span>
+      </div>
 
       <button class="save-btn" id="saveBtn" onclick="saveSession()">
         ▶ SAVE SESSION
@@ -924,8 +995,46 @@
   tickClock();
   setInterval(tickClock, 1000);
 
-  // ── DEFAULT MONTH PICKER ──
+  // ── DATE PICKER INIT ──
   const now = new Date();
+
+  function todayISO() {
+    return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  }
+
+  function setToday() {
+    document.getElementById('sessionDate').value = todayISO();
+    updateDateTag();
+  }
+
+  function updateDateTag() {
+    const val = document.getElementById('sessionDate').value;
+    const tag = document.getElementById('dateTag');
+    const banner = document.getElementById('backdateBanner');
+    if (!val) { tag.textContent = ''; if(banner) banner.style.display='none'; return; }
+    const picked = new Date(val + 'T00:00:00');
+    const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    const diff = Math.round((todayMid - picked) / 86400000);
+    if (diff === 0) {
+      tag.textContent = '✓ Today';
+      tag.style.color = 'var(--accent3)';
+      if(banner) banner.style.display='none';
+    } else if (diff > 0) {
+      tag.textContent = `⚠ Backdated · ${diff} day${diff>1?'s':''} ago`;
+      tag.style.color = 'var(--warn)';
+      if(banner) banner.style.display='flex';
+    } else {
+      tag.textContent = `⚠ Future date`;
+      tag.style.color = 'var(--warn)';
+      if(banner) banner.style.display='flex';
+    }
+  }
+
+  document.getElementById('sessionDate').value = todayISO();
+  document.getElementById('sessionDate').addEventListener('change', updateDateTag);
+  updateDateTag();
+
+  // ── DEFAULT MONTH PICKER ──
   document.getElementById('monthPicker').value =
     `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 
@@ -948,10 +1057,12 @@
       el.style.transition='.3s'; setTimeout(()=>el.remove(),300); }, 3200);
   }
 
-  // ── PARSE TIME ──
-  function parseTime(str) {
+  // ── PARSE TIME (with base date) ──
+  function parseTime(str, baseDateStr) {
     const [h,m] = str.split(':').map(Number);
-    const d = new Date(); d.setHours(h,m,0,0); return d;
+    const d = baseDateStr ? new Date(baseDateStr + 'T00:00:00') : new Date();
+    d.setHours(h,m,0,0);
+    return d;
   }
 
   // ── PREVIEW ──
@@ -983,31 +1094,40 @@
     const to = document.getElementById('timeOut').value;
     const li = document.getElementById('lunchIn').value;
     const lo = document.getElementById('lunchOut').value;
+    const sessionDateVal = document.getElementById('sessionDate').value;
 
     if (!ti || !to) { toast('Please fill in Time In and Time Out', 'error'); return; }
+    if (!sessionDateVal) { toast('Please select a session date', 'error'); return; }
 
     const btn = document.getElementById('saveBtn');
     btn.disabled = true;
     btn.textContent = '⏳ SAVING...';
 
-    const today = new Date();
-    const dateStr = today.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
-    const start = parseTime(ti), end = parseTime(to);
+    const pickedDate = new Date(sessionDateVal + 'T00:00:00');
+    const dateStr = pickedDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+
+    const start = parseTime(ti, sessionDateVal);
+    const end = parseTime(to, sessionDateVal);
     let totalHours = (end - start) / 3600000;
-    if (li && lo) totalHours -= (parseTime(lo) - parseTime(li)) / 3600000;
+    if (li && lo) totalHours -= (parseTime(lo, sessionDateVal) - parseTime(li, sessionDateVal)) / 3600000;
 
     if (totalHours <= 0) {
       toast('Total hours must be positive', 'error');
       btn.disabled = false; btn.textContent = '▶ SAVE SESSION'; return;
     }
 
+    // Check if backdated
+    const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    const diff = Math.round((todayMid - pickedDate) / 86400000);
+    const isBackdated = diff > 0;
+
     const log = {
       date: dateStr,
       mode: currentMode,
       time_in: start.toISOString(),
       time_out: end.toISOString(),
-      lunch_in: li ? parseTime(li).toISOString() : null,
-      lunch_out: lo ? parseTime(lo).toISOString() : null,
+      lunch_in: li ? parseTime(li, sessionDateVal).toISOString() : null,
+      lunch_out: lo ? parseTime(lo, sessionDateVal).toISOString() : null,
       total_hours: parseFloat(totalHours.toFixed(2))
     };
 
@@ -1016,8 +1136,12 @@
       console.error(error);
       toast('Error saving session. Check console.', 'error');
     } else {
-      toast(`Session saved · ${totalHours.toFixed(2)} hrs logged`);
+      const msg = isBackdated
+        ? `Backdated session saved for ${dateStr} · ${totalHours.toFixed(2)} hrs`
+        : `Session saved · ${totalHours.toFixed(2)} hrs logged`;
+      toast(msg);
       ['timeIn','timeOut','lunchIn','lunchOut'].forEach(id => document.getElementById(id).value = '');
+      setToday();
       updatePreview();
       renderLogs();
     }
