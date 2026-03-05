@@ -885,14 +885,21 @@
       <!-- Work Session -->
       <div class="time-group">
         <div class="time-group-label">⚡ Work Session</div>
-        <div class="time-row">
-          <div class="time-input-wrap">
-            <label>TIME IN</label>
+        <div class="stamp-row">
+          <div class="stamp-col">
+            <div class="stamp-label">TIME IN</div>
             <input type="time" id="timeIn" oninput="updatePreview()">
+            <button class="stamp-btn stamp-in" onclick="stampNow('timeIn')" title="Stamp current time">
+              <span class="stamp-icon">⏱</span> NOW
+            </button>
           </div>
-          <div class="time-input-wrap">
-            <label>TIME OUT</label>
+          <div class="stamp-arrow">→</div>
+          <div class="stamp-col">
+            <div class="stamp-label">TIME OUT</div>
             <input type="time" id="timeOut" oninput="updatePreview()">
+            <button class="stamp-btn stamp-out" onclick="stampNow('timeOut')" title="Stamp current time">
+              <span class="stamp-icon">⏱</span> NOW
+            </button>
           </div>
         </div>
       </div>
@@ -902,14 +909,21 @@
       <!-- Lunch Break -->
       <div class="time-group">
         <div class="time-group-label">🍱 Lunch Break</div>
-        <div class="time-row">
-          <div class="time-input-wrap">
-            <label>BREAK START</label>
+        <div class="stamp-row">
+          <div class="stamp-col">
+            <div class="stamp-label">BREAK START</div>
             <input type="time" id="lunchIn" oninput="updatePreview()">
+            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchIn')" title="Stamp current time">
+              <span class="stamp-icon">⏱</span> NOW
+            </button>
           </div>
-          <div class="time-input-wrap">
-            <label>BREAK END</label>
+          <div class="stamp-arrow">→</div>
+          <div class="stamp-col">
+            <div class="stamp-label">BREAK END</div>
             <input type="time" id="lunchOut" oninput="updatePreview()">
+            <button class="stamp-btn stamp-lunch" onclick="stampNow('lunchOut')" title="Stamp current time">
+              <span class="stamp-icon">⏱</span> NOW
+            </button>
           </div>
         </div>
       </div>
