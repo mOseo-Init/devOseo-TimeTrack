@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#07080f">
+  <title>devOseo · TimeTrack</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg:           #07080f;
+      --surface:      #0d0f1c;
+      --surface2:     #13162a;
+      --surface3:     #1a1e35;
+      --border:       #1f2440;
+      --border-bright:#2e3560;
+      --accent:       #4f8ef7;
+      --accent2:      #7c5cfc;
+      --accent3:      #00e5c0;
+      --warn:         #ff6b35;
+      --success:      #00e5a0;
+      --text:         #e8ecff;
+      --text-muted:   #6b739e;
+      --text-dim:     #3a3f5c;
+      --mono:         'Space Mono', monospace;
+      --display:      'Syne', sans-serif;
+      --r:            12px;
+      --bot-nav:      64px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--display);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: calc(var(--bot-nav) + 8px);
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,142,247,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,142,247,0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; width: 500px; height: 500px; top: -150px; right: -150px;
+      background: radial-gradient(circle, rgba(124,92,252,0.1) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .card {
+      background: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--r) !important;
+      color: var(--text) !important;
+    }
+    .form-control, .form-select {
+      background: var(--surface2) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      font-family: var(--mono);
+      font-size: 13px;
+      border-radius: 8px !important;
+      color-scheme: dark;
+      padding: 10px 12px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.15) !important;
+      background: var(--surface2) !important;
+      color: var(--text) !important;
+    }
+    .form-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .table {
+      color: var(--text) !important;
+      font-family: var(--mono);
+      font-size: 12px;
+      --bs-table-bg: transparent;
+      --bs-table-hover-bg: var(--surface2);
+      --bs-table-border-color: var(--border);
+    }
+    .table thead th {
+      background: var(--surface2) !important;
+      color: var(--text-muted);
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border) !important;
+      padding: 10px 12px; white-space: nowrap;
+    }
+    .table td { border-color: var(--border) !important; vertical-align: middle; padding: 10px 12px; }
+    .table-hover tbody tr:hover td { background: var(--surface2) !important; }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
+
+    .app-wrap {
+      position: relative; z-index: 1;
+      max-width: 1160px; margin: 0 auto;
+      padding: 16px 14px 0;
+    }
+
+    /* ── TOP NAV ── */
+    .top-nav {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(7,8,15,0.93);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .top-nav-inner {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      height: 54px; max-width: 1160px;
+      margin: 0 auto; padding: 0 14px;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 34px; height: 34px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff;
+      box-shadow: 0 0 14px rgba(79,142,247,0.4);
+    }
+    .brand-name {
+      font-size: 15px; font-weight: 800; letter-spacing: -.3px;
+      background: linear-gradient(90deg, var(--text) 55%, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      white-space: nowrap;
+    }
+    .brand-sub { font-size: 9px; color: var(--text-muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
+    .live-clock-top { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent3); letter-spacing: 2px; text-shadow: 0 0 12px rgba(0,229,192,0.4); }
+    .live-date-top  { font-size: 9px; color: var(--text-muted); font-family: var(--mono); text-align: right; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--bot-nav); z-index: 300;
+      background: rgba(13,15,28,0.97);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: stretch;
+    }
+    .bnav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 3px;
+      background: none; border: none; color: var(--text-dim);
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; cursor: pointer;
+      transition: color .2s; padding: 8px 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bnav-item i { font-size: 21px; line-height: 1; }
+    .bnav-item.active { color: var(--accent); }
+    .bnav-item.active i { filter: drop-shadow(0 0 6px rgba(79,142,247,0.8)); }
+    .bnav-item:nth-child(2).active { color: var(--accent2); }
+    .bnav-item:nth-child(2).active i { filter: drop-shadow(0 0 6px rgba(124,92,252,0.8)); }
+    .bnav-item:nth-child(3).active { color: var(--accent3); }
+    .bnav-item:nth-child(3).active i { filter: drop-shadow(0 0 6px rgba(0,229,192,0.8)); }
+
+    .tab-page { display: none; }
+    .tab-page.active { display: block; }
+
+    /* ── OJT HERO ── */
+    .ojt-hero { position: relative; overflow: hidden; padding: 20px 22px; }
+    .ojt-hero::before {
+      content: 'OJT'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 70px; font-weight: 800; color: rgba(79,142,247,0.04);
+      font-family: var(--mono); pointer-events: none; letter-spacing: -4px;
+    }
+    .ojt-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 6px; }
+    .ojt-nums { display: flex; align-items: baseline; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ojt-current {
+      font-size: 34px; font-weight: 800; font-family: var(--mono); line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .ojt-slash { color: var(--text-dim); font-size: 20px; }
+    .ojt-total { font-size: 20px; font-weight: 700; color: var(--text-dim); font-family: var(--mono); }
+    .ojt-unit  { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+    .ojt-bar   { height: 5px; background: var(--surface3); border-radius: 99px; overflow: hidden; margin-bottom: 7px; }
+    .ojt-fill  {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent3));
+      border-radius: 99px; width: 0%;
+      transition: width 1.1s cubic-bezier(.4,0,.2,1);
+      box-shadow: 0 0 10px rgba(0,229,192,0.5);
+    }
+    .ojt-meta  { display: flex; justify-content: space-between; font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
+
+    /* ── STAT CARDS ── */
+    .stat-card { position: relative; overflow: hidden; padding: 14px 14px; transition: transform .2s; }
+    .stat-card:hover { transform: translateY(-2px); border-color: var(--border-bright) !important; }
+    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .sc-blue::after   { background: linear-gradient(90deg, var(--accent), transparent); }
+    .sc-purple::after { background: linear-gradient(90deg, var(--accent2), transparent); }
+    .sc-teal::after   { background: linear-gradient(90deg, var(--accent3), transparent); }
+    .sc-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 3px; }
+    .sc-val { font-size: 24px; font-weight: 800; font-family: var(--mono); line-height: 1; }
+    .sc-sub { font-size: 9px; color: var(--text-muted); font-family: var(--mono); margin-top: 2px; }
+    .sc-blue .sc-val   { color: var(--accent); }
+    .sc-purple .sc-val { color: var(--accent2); }
+    .sc-teal .sc-val   { color: var(--accent3); }
+
+    .sec-lbl {
+      font-size: 9px; text-transform: uppercase; letter-spacing: 3px;
+      color: var(--text-muted); font-family: var(--mono);
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .sec-lbl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── MODE TOGGLE ── */
+    .mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mode-btn {
+      padding: 10px 8px; border-radius: 8px; cursor: pointer;
+      font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-align: center; transition: all .2s; border: none;
+      background: var(--surface2); color: var(--text-muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+    .mode-btn:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--border-bright); }
+    .mode-btn.mo-office { background: rgba(79,142,247,0.12); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+    .mode-btn.mo-home   { background: rgba(124,92,252,0.12); color: var(--accent2); box-shadow: inset 0 0 0 1.5px var(--accent2); }
+
+    input[type="date"], input[type="month"] {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-family: var(--mono);
+      font-size: 13px; padding: 10px 12px; outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      color-scheme: dark; width: 100%;
+    }
+    input[type="date"]:focus, input[type="month"]:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
+    }
+    input[type="month"] { width: auto; padding: 6px 10px; font-size: 12px; }
+
+    .today-btn {
+      flex-shrink: 0; padding: 10px 12px;
+      background: var(--surface3); border: 1px solid var(--border-bright);
+      border-radius: 8px; color: var(--accent3);
+      font-family: var(--mono); font-size: 9px; font-weight: 700;
+      letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .today-btn:hover { background: rgba(0,229,192,0.12); border-color: var(--accent3); }
+    .date-tag { font-family: var(--mono); font-size: 10px; margin-top: 5px; min-height: 16px; }
+
+    .bd-banner {
+      display: none; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 8px; margin-bottom: 10px;
+      background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.25);
+      font-family: var(--mono); font-size: 11px; color: var(--warn);
+    }
+    .bd-banner.show { display: flex; }
+
+    /* ── LOG MODE SWITCHER ── */
+    .log-mode-switcher {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+    }
+    .lms-btn {
+      padding: 10px 8px; border: none; background: transparent;
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      color: var(--text-muted); transition: all .2s; text-align: center;
+    }
+    .lms-btn:first-child { border-right: 1px solid var(--border); }
+    .lms-btn.lms-active-step { background: rgba(79,142,247,0.12); color: var(--accent); }
+    .lms-btn.lms-active-overall { background: rgba(0,229,192,0.1); color: var(--accent3); }
+    .lms-btn:hover:not(.lms-active-step):not(.lms-active-overall) { color: var(--text); background: var(--surface2); }
+
+    /* ── STEP WIZARD ── */
+    .step-wizard {
+      display: flex; align-items: center; gap: 0;
+      margin-bottom: 20px; position: relative;
+    }
+    .step-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      flex: 1; position: relative; cursor: default;
+    }
+    .step-circle {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+      border: 2px solid var(--border); color: var(--text-dim);
+      background: var(--surface2); transition: all .3s; z-index: 1;
+      position: relative;
+    }
+    .step-label {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text-dim); transition: color .3s;
+      text-align: center; line-height: 1.2;
+    }
+    .step-line {
+      position: absolute; top: 16px; left: calc(50% + 16px);
+      right: calc(-50% + 16px); height: 2px;
+      background: var(--border); z-index: 0; transition: background .3s;
+    }
+    .step-item:last-child .step-line { display: none; }
+    .step-item.done .step-circle  { border-color: var(--success); background: rgba(0,229,160,0.12); color: var(--success); }
+    .step-item.done .step-label   { color: var(--success); }
+    .step-item.done .step-line    { background: var(--success); }
+    .step-item.active .step-circle { border-color: var(--accent); background: rgba(79,142,247,0.15); color: var(--accent); box-shadow: 0 0 12px rgba(79,142,247,0.3); }
+    .step-item.active .step-label  { color: var(--accent); }
+    .step-item.skip .step-circle   { border-color: var(--text-dim); background: var(--surface2); color: var(--text-dim); }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .step-action-box {
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px; background: var(--surface2); margin-bottom: 14px;
+    }
+    .step-action-title {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
+    }
+
+    .stamp-row   { display: grid; grid-template-columns: 1fr 18px 1fr; align-items: end; gap: 6px; }
+    .stamp-arrow { text-align: center; color: var(--text-dim); font-size: 12px; padding-bottom: 34px; }
+    .stamp-col   { display: flex; flex-direction: column; gap: 4px; }
+
+    .stamp-btn {
+      width: 100%; padding: 8px 4px;
+      border-radius: 7px; border: none; outline: none;
+      font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; transition: all .18s ease; text-align: center;
+    }
+    .sb-in   { background: rgba(79,142,247,0.14);  color: var(--accent);  box-shadow: inset 0 0 0 1px rgba(79,142,247,0.35); }
+    .sb-out  { background: rgba(124,92,252,0.14);  color: var(--accent2); box-shadow: inset 0 0 0 1px rgba(124,92,252,0.35); }
+    .sb-lin  { background: rgba(0,229,192,0.1);    color: var(--accent3); box-shadow: inset 0 0 0 1px rgba(0,229,192,0.3); }
+    .sb-lout { background: rgba(255,107,53,0.1);   color: var(--warn);    box-shadow: inset 0 0 0 1px rgba(255,107,53,0.3); }
+    .sb-in:hover   { background: rgba(79,142,247,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent),  0 0 10px rgba(79,142,247,0.2); transform: translateY(-1px); }
+    .sb-out:hover  { background: rgba(124,92,252,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent2), 0 0 10px rgba(124,92,252,0.2); transform: translateY(-1px); }
+    .sb-lin:hover  { background: rgba(0,229,192,0.2);    box-shadow: inset 0 0 0 1.5px var(--accent3), 0 0 10px rgba(0,229,192,0.15); transform: translateY(-1px); }
+    .sb-lout:hover { background: rgba(255,107,53,0.2);   box-shadow: inset 0 0 0 1.5px var(--warn),    0 0 10px rgba(255,107,53,0.15); transform: translateY(-1px); }
+    .stamp-btn.stamped { opacity: .85; }
+    @keyframes sPop { 0%{transform:scale(1)} 45%{transform:scale(1.06)} 100%{transform:scale(1)} }
+    .stamp-btn.pulse { animation: sPop .25s ease; }
+
+    .step-nav-row { display: flex; gap: 8px; margin-top: 10px; }
+    .step-skip-btn {
+      flex: 1; padding: 10px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text-muted);
+      font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; transition: all .2s;
+    }
+    .step-skip-btn:hover { border-color: var(--border-bright); color: var(--text); }
+
+    /* ── PARTIAL SAVE BANNER ── */
+    .partial-banner {
+      display: none; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 10px; margin-bottom: 12px;
+      background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.3);
+      font-family: var(--mono); font-size: 11px; color: var(--accent);
+      animation: bannerPulse 2.5s ease infinite;
+    }
+    .partial-banner.show { display: flex; }
+    @keyframes bannerPulse { 0%,100%{border-color:rgba(79,142,247,0.3)} 50%{border-color:rgba(79,142,247,0.6)} }
+    .partial-badge {
+      flex-shrink:0; padding: 3px 8px; border-radius: 4px;
+      background: rgba(79,142,247,0.2); color: var(--accent);
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    }
+    .partial-resume-btn {
+      margin-left: auto; padding: 5px 12px; border-radius: 6px; border: none;
+      background: rgba(79,142,247,0.2); color: var(--accent);
+      font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .partial-resume-btn:hover { background: rgba(79,142,247,0.35); }
+
+    /* ── OVERALL LOGGING MODE ── */
+    .overall-log-box {
+      border: 1px solid rgba(0,229,192,0.2); border-radius: 10px;
+      padding: 16px; background: rgba(0,229,192,0.04); margin-bottom: 14px;
+    }
+    .overall-log-title {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent3); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .overall-row { display: grid; grid-template-columns: 1fr 24px 1fr; align-items: end; gap: 6px; margin-bottom: 12px; }
+    .overall-arrow { text-align:center; color:var(--text-dim); font-size:14px; padding-bottom:34px; }
+    .overall-divider { height:1px; background:rgba(0,229,192,0.1); margin:12px 0; }
+    .overall-break-toggle {
+      display:flex; align-items:center; gap:8px; cursor:pointer;
+      font-family:var(--mono); font-size:10px; color:var(--text-muted);
+      padding:8px 10px; border-radius:7px; border:1px solid var(--border);
+      background:var(--surface2); transition:all .2s; user-select:none;
+      margin-bottom:10px;
+    }
+    .overall-break-toggle:hover { border-color:var(--border-bright); color:var(--text); }
+    .overall-break-toggle.active { border-color:rgba(0,229,192,0.35); color:var(--accent3); background:rgba(0,229,192,0.07); }
+    .obt-icon { font-size:14px; }
+
+    /* ── SESSION PREVIEW ── */
+    .preview-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .prev-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-family: var(--mono); }
+    .prev-hrs { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--accent3); }
+    .prev-sub { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+
+    /* ── TODAY SESSIONS SUMMARY ── */
+    .today-sessions-wrap { margin-bottom: 12px; }
+    .today-session-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-radius: 8px;
+      background: var(--surface3); border: 1px solid var(--border);
+      margin-bottom: 6px; font-family: var(--mono); font-size: 11px;
+    }
+    .tsi-times { color: var(--text-muted); }
+    .tsi-hours { color: var(--accent3); font-weight: 700; }
+    /* open/partial session indicator */
+    .tsi-open { color: var(--warn); font-weight: 700; display:flex; align-items:center; gap:5px; }
+    .tsi-open::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--warn); animation: blinkDot 1.2s ease infinite; }
+    @keyframes blinkDot { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .tsi-total-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; border-radius: 8px;
+      background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.2);
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+    }
+    .tsi-total-lbl { color: var(--text-muted); }
+    .tsi-total-hrs { color: var(--accent); }
+
+    /* ── SAVE BUTTONS ── */
+    .save-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; border-radius: 10px; color: #fff;
+      font-family: var(--mono); font-size: 12px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: all .2s;
+      box-shadow: 0 4px 18px rgba(79,142,247,0.3);
+      position: relative; z-index: 1;
+      display: block; margin-top: 14px;
+    }
+    .save-btn:hover   { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(79,142,247,0.4); }
+    .save-btn:active  { transform: none; }
+    .save-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    /* Partial save — save time-in only */
+    .partial-save-btn {
+      width: 100%; padding: 11px;
+      background: rgba(79,142,247,0.1); border: 1px dashed rgba(79,142,247,0.4);
+      border-radius: 10px; color: var(--accent);
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; transition: all .2s;
+      display: block; margin-top: 8px;
+    }
+    .partial-save-btn:hover { background: rgba(79,142,247,0.18); border-color: var(--accent); }
+    .partial-save-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+    .tt-div { height: 1px; background: var(--border); margin: 14px 0; }
+
+    /* ── TABLE STYLES ── */
+    .b-office { background: rgba(79,142,247,0.12); color: var(--accent);  border: 1px solid rgba(79,142,247,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
+    .b-home   { background: rgba(124,92,252,0.12); color: var(--accent2); border: 1px solid rgba(124,92,252,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
+    .b-open   { background: rgba(255,107,53,0.12); color: var(--warn);    border: 1px solid rgba(255,107,53,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
+    .h-hi  { color: var(--accent3); font-weight: 700; }
+    .h-mid { color: var(--accent);  font-weight: 700; }
+    .h-lo  { color: var(--warn);    font-weight: 700; }
+
+    .del-btn {
+      background: none; border: none; color: var(--text-dim);
+      cursor: pointer; padding: 4px 6px; border-radius: 4px;
+      transition: color .15s, background .15s; font-size: 14px; line-height: 1;
+    }
+    .del-btn:hover { color: var(--warn); background: rgba(255,107,53,0.1); }
+
+    .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-family: var(--mono); font-size: 12px; }
+    .empty-state .ei { font-size: 34px; margin-bottom: 10px; opacity: .3; }
+
+    /* ── MOBILE LOG CARDS ── */
+    .log-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+      animation: rowIn .22s ease both;
+    }
+    /* open session card highlight */
+    .log-card.lc-open { border-color: rgba(255,107,53,0.3); }
+    .lc-top  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .lc-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
+    .lc-hrs  { font-family: var(--mono); font-size: 18px; font-weight: 700; line-height: 1; }
+    .lc-row  { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+    .lc-row span { display: flex; align-items: center; gap: 4px; }
+    .lc-sub-sessions { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+    .lc-sub { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+    .lc-sub .lcs-hrs { color: var(--accent); }
+
+    @keyframes rowIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── TOAST ── */
+    .toast-wrap {
+      position: fixed; bottom: calc(var(--bot-nav) + 10px); right: 14px;
+      z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .tt {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; border-radius: 10px;
+      background: var(--surface3); border: 1px solid var(--border-bright);
+      font-family: var(--mono); font-size: 11px; color: var(--text);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+      animation: ttIn .28s cubic-bezier(.4,0,.2,1) forwards;
+      pointer-events: auto; max-width: min(360px, calc(100vw - 28px));
+    }
+    .tt.t-success { border-color: rgba(0,229,160,0.3); }
+    .tt.t-error   { border-color: rgba(255,107,53,0.35); }
+    .tt.t-warn    { border-color: rgba(255,107,53,0.35); }
+    .tt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .t-success .tt-dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .t-error .tt-dot   { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
+    .t-warn .tt-dot    { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
+    @keyframes ttIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+
+    /* ── REPORTS ── */
+    .rpt-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1; }
+
+    .mf-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .mf-row label { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin:0; white-space:nowrap; }
+
+    @media (min-width: 992px) {
+      body { padding-bottom: 0; }
+      .bottom-nav { display: none !important; }
+      .tab-page { display: block !important; }
+      .toast-wrap { bottom: 24px; }
+      .app-wrap { padding: 24px 24px 60px; }
+    }
+    @media (max-width: 991px) {
+      .log-table-wrap { display: none !important; }
+      .log-cards-wrap { display: block !important; }
+    }
+    @media (min-width: 992px) {
+      .log-table-wrap { display: block !important; }
+      .log-cards-wrap { display: none !important; }
+    }
+
+    .session-panel-wrap { overflow: visible !important; }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <div class="nav-brand">
+      <div class="logo-mark">TT</div>
+      <div>
+        <div class="brand-name">devOseo · TimeTrack</div>
+        <div class="brand-sub d-none d-sm-block">OJT Session Logger</div>
+      </div>
+    </div>
+    <div class="text-end">
+      <div class="live-clock-top" id="liveClock">--:--:--</div>
+      <div class="live-date-top d-none d-sm-block" id="liveDate"></div>
+    </div>
+  </div>
+</nav>
+
+<div class="app-wrap">
+
+  <!-- ████ DASHBOARD TAB ████ -->
+  <div class="tab-page active" id="tab-dashboard">
+
+    <div class="card ojt-hero mb-3">
+      <div class="ojt-lbl">OJT Progress</div>
+      <div class="ojt-nums">
+        <span class="ojt-current" id="ojtCurrent">0.00</span>
+        <span class="ojt-slash">/</span>
+        <span class="ojt-total">300</span>
+        <span class="ojt-unit">hrs</span>
+      </div>
+      <div class="ojt-bar"><div class="ojt-fill" id="ojtFill"></div></div>
+      <div class="ojt-meta">
+        <span id="ojtPct">0% complete</span>
+        <span id="ojtRemaining">300 hrs remaining</span>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-4">
+        <div class="card stat-card sc-blue h-100">
+          <div class="sc-lbl">Today</div>
+          <div class="sc-val" id="todayHours">0.00</div>
+          <div class="sc-sub">hours</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card stat-card sc-purple h-100">
+          <div class="sc-lbl">Week</div>
+          <div class="sc-val" id="weekHours">0.00</div>
+          <div class="sc-sub">hours</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card stat-card sc-teal h-100">
+          <div class="sc-lbl">Month</div>
+          <div class="sc-val" id="monthHours">0.00</div>
+          <div class="sc-sub">hours</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-4 d-none d-lg-block">
+        <div style="position:sticky;top:70px;" id="desktopFormSlot"></div>
+      </div>
+      <div class="col-12 col-lg-8">
+        <div class="card overflow-hidden">
+          <div class="d-flex align-items-center justify-content-between px-3 py-2" style="border-bottom:1px solid var(--border)">
+            <span class="sec-lbl mb-0" style="flex:1;margin-bottom:0!important">Session Logs</span>
+            <div class="mf-row">
+              <label>Filter</label>
+              <input type="month" id="monthPicker" onchange="renderLogs()">
+            </div>
+          </div>
+          <div class="log-table-wrap table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Mode</th><th>Sessions</th><th>Break</th><th>Total</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="logBody">
+                <tr><td colspan="6"><div class="empty-state"><div class="ei">📋</div>Loading…</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="log-cards-wrap p-3" id="logCards">
+            <div class="empty-state"><div class="ei">📋</div>Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ████ LOG TAB (mobile) ████ -->
+  <div class="tab-page" id="tab-log"></div>
+
+  <!-- ████ REPORTS TAB ████ -->
+  <div class="tab-page" id="tab-reports">
+    <div class="sec-lbl mt-1">Reports</div>
+    <div class="row g-3">
+      <div class="col-12 col-sm-6">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Total OJT Hours</div>
+          <div class="rpt-val" style="color:var(--accent)" id="rptTotal">0.00</div>
+          <div class="sc-sub mb-2">of 300 hrs required</div>
+          <div class="ojt-bar mt-1"><div class="ojt-fill" id="rptFill"></div></div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Daily Average</div>
+          <div class="rpt-val" style="color:var(--accent2)" id="rptAvg">0.00</div>
+          <div class="sc-sub">hrs per logged day</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-3">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Days Logged</div>
+          <div class="rpt-val" style="color:var(--accent3);font-size:28px" id="rptDays">0</div>
+          <div class="sc-sub">unique days</div>
+        </div>
+      </div>
+      <div class="col-6 col-sm-3">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Est. Completion</div>
+          <div class="rpt-val" style="color:var(--warn);font-size:20px" id="rptEta">—</div>
+          <div class="sc-sub">at current avg</div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Office vs WFH</div>
+          <div class="d-flex gap-4 mt-1">
+            <div>
+              <div class="sc-lbl" style="color:var(--accent)">OFFICE</div>
+              <div class="rpt-val" style="color:var(--accent);font-size:22px" id="rptOffice">0</div>
+              <div class="sc-sub">sessions</div>
+            </div>
+            <div>
+              <div class="sc-lbl" style="color:var(--accent2)">WFH</div>
+              <div class="rpt-val" style="color:var(--accent2);font-size:22px" id="rptWfh">0</div>
+              <div class="sc-sub">sessions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6">
+        <div class="card p-3">
+          <div class="sc-lbl mb-2">Remaining Hours</div>
+          <div class="rpt-val" style="color:var(--warn)" id="rptRemaining">300.00</div>
+          <div class="sc-sub">hrs until 300 goal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav d-lg-none">
+  <button class="bnav-item active" id="bnav-dashboard" onclick="switchTab('dashboard')">
+    <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+  </button>
+  <button class="bnav-item" id="bnav-log" onclick="switchTab('log')">
+    <i class="bi bi-plus-circle-fill"></i><span>Log</span>
+  </button>
+  <button class="bnav-item" id="bnav-reports" onclick="switchTab('reports')">
+    <i class="bi bi-bar-chart-fill"></i><span>Reports</span>
+  </button>
+</nav>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- SESSION FORM TEMPLATE -->
+<template id="formTpl">
+<div class="card session-panel-wrap" style="overflow:visible!important;">
+  <div class="card-body pb-4">
+    <div class="sec-lbl">New Session</div>
+
+    <!-- Partial/open session resume banner -->
+    <div class="partial-banner" id="partialBanner">
+      <span class="partial-badge">⏳ OPEN</span>
+      <span id="partialBannerText">Session in progress — Time In saved</span>
+      <button class="partial-resume-btn" onclick="resumePartialSession()">
+        <i class="bi bi-play-fill me-1"></i>Resume
+      </button>
+    </div>
+
+    <!-- Date -->
+    <div class="mb-3">
+      <label class="form-label">📅 Session Date</label>
+      <div class="d-flex gap-2">
+        <input type="date" class="form-control" id="sessionDate" oninput="updateDateTag()">
+        <button class="today-btn" onclick="setToday()"><i class="bi bi-calendar-check me-1"></i>TODAY</button>
+      </div>
+      <div class="date-tag" id="dateTag"></div>
+    </div>
+
+    <div class="bd-banner" id="bdBanner">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <span>Backdated entry — past date</span>
+    </div>
+
+    <!-- Mode -->
+    <div class="mb-3">
+      <label class="form-label">Work Mode</label>
+      <div class="mode-toggle">
+        <button class="mode-btn mo-office" id="btnOffice" onclick="setMode('Office')">🏢 OFFICE</button>
+        <button class="mode-btn" id="btnHome" onclick="setMode('Home')">🏠 WFH</button>
+      </div>
+      <input type="hidden" id="workMode" value="Office">
+    </div>
+
+    <div class="tt-div"></div>
+
+    <!-- ── LOG MODE SWITCHER ── -->
+    <div class="log-mode-switcher">
+      <button class="lms-btn lms-active-step" id="lmsStepBtn" onclick="setLogMode('step')">
+        <i class="bi bi-ui-checks me-1"></i>Step by Step
+      </button>
+      <button class="lms-btn" id="lmsOverallBtn" onclick="setLogMode('overall')">
+        <i class="bi bi-clock-history me-1"></i>Overall Log
+      </button>
+    </div>
+
+    <!-- ████ STEP-BY-STEP PANEL ████ -->
+    <div id="stepModePanel">
+
+      <!-- STEP WIZARD -->
+      <div class="step-wizard" id="stepWizard">
+        <div class="step-item active" id="si-0">
+          <div class="step-circle" id="sc-0"><i class="bi bi-box-arrow-in-right"></i></div>
+          <div class="step-label">Time In</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-item" id="si-1">
+          <div class="step-circle" id="sc-1"><i class="bi bi-cup-hot"></i></div>
+          <div class="step-label">Break</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-item" id="si-2">
+          <div class="step-circle" id="sc-2"><i class="bi bi-box-arrow-right"></i></div>
+          <div class="step-label">Time Out</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-item" id="si-3">
+          <div class="step-circle" id="sc-3"><i class="bi bi-plus-lg"></i></div>
+          <div class="step-label">Add More</div>
+        </div>
+      </div>
+
+      <!-- Today's sessions summary -->
+      <div class="today-sessions-wrap" id="todaySessionsWrap" style="display:none;">
+        <div class="sc-lbl mb-2" style="font-size:9px;letter-spacing:2px;color:var(--text-muted);">TODAY'S SESSIONS</div>
+        <div id="todaySessionsList"></div>
+      </div>
+
+      <!-- STEP 0: Time In -->
+      <div class="step-panel active" id="sp-0">
+        <div class="step-action-box">
+          <div class="step-action-title"><i class="bi bi-box-arrow-in-right me-1" style="color:var(--accent)"></i>Record Time In</div>
+          <div class="stamp-row">
+            <div class="stamp-col">
+              <label class="form-label">TIME IN</label>
+              <input type="time" class="form-control" id="timeIn" oninput="updatePreview()">
+              <button class="stamp-btn sb-in mt-1" onclick="stampNow('timeIn',this)">⏱ STAMP NOW</button>
+            </div>
+          </div>
+        </div>
+        <!-- Partial save hint -->
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:0 2px;">
+          <i class="bi bi-info-circle me-1" style="color:var(--accent)"></i>
+          You can save just your Time In now and complete the session later.
+        </div>
+        <div class="step-nav-row">
+          <button class="step-skip-btn" onclick="goStep(1)"><i class="bi bi-skip-forward me-1"></i>Skip to Break</button>
+          <button class="step-skip-btn" onclick="goStep(2)"><i class="bi bi-skip-end me-1"></i>Skip to Out</button>
+        </div>
+      </div>
+
+      <!-- STEP 1: Lunch Break -->
+      <div class="step-panel" id="sp-1">
+        <div class="step-action-box">
+          <div class="step-action-title"><i class="bi bi-cup-hot me-1" style="color:var(--accent3)"></i>Lunch Break</div>
+          <div class="stamp-row">
+            <div class="stamp-col">
+              <label class="form-label">BREAK START</label>
+              <input type="time" class="form-control" id="lunchIn" oninput="updatePreview()">
+              <button class="stamp-btn sb-lin mt-1" onclick="stampNow('lunchIn',this)">⏱ STAMP IN</button>
+            </div>
+            <div class="stamp-arrow">→</div>
+            <div class="stamp-col">
+              <label class="form-label">BREAK END</label>
+              <input type="time" class="form-control" id="lunchOut" oninput="updatePreview()">
+              <button class="stamp-btn sb-lout mt-1" onclick="stampNow('lunchOut',this)">⏱ STAMP OUT</button>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav-row">
+          <button class="step-skip-btn" onclick="goStep(0)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+          <button class="step-skip-btn" onclick="skipBreak()"><i class="bi bi-skip-forward me-1"></i>No Break</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Time Out -->
+      <div class="step-panel" id="sp-2">
+        <div class="step-action-box">
+          <div class="step-action-title"><i class="bi bi-box-arrow-right me-1" style="color:var(--accent2)"></i>Record Time Out</div>
+          <div class="stamp-row">
+            <div class="stamp-col">
+              <label class="form-label">TIME OUT</label>
+              <input type="time" class="form-control" id="timeOut" oninput="updatePreview()">
+              <button class="stamp-btn sb-out mt-1" onclick="stampNow('timeOut',this)">⏱ STAMP NOW</button>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav-row">
+          <button class="step-skip-btn" onclick="goStep(1)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Add Another Session -->
+      <div class="step-panel" id="sp-3">
+        <div class="step-action-box" style="border-color:rgba(79,142,247,0.25);">
+          <div class="step-action-title" style="color:var(--accent)">
+            <i class="bi bi-plus-circle me-1"></i>Add Another Session Today
+          </div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:12px;">
+            e.g. came back at 1:00 PM after your morning shift
+          </div>
+          <div class="stamp-row">
+            <div class="stamp-col">
+              <label class="form-label">NEW TIME IN</label>
+              <input type="time" class="form-control" id="timeIn2" oninput="updatePreview()">
+              <button class="stamp-btn sb-in mt-1" onclick="stampNow('timeIn2',this)">⏱ STAMP NOW</button>
+            </div>
+            <div class="stamp-arrow">→</div>
+            <div class="stamp-col">
+              <label class="form-label">NEW TIME OUT</label>
+              <input type="time" class="form-control" id="timeOut2" oninput="updatePreview()">
+              <button class="stamp-btn sb-out mt-1" onclick="stampNow('timeOut2',this)">⏱ STAMP NOW</button>
+            </div>
+          </div>
+        </div>
+        <div class="step-nav-row">
+          <button class="step-skip-btn" onclick="goStep(2)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-box mt-3" id="previewBox">
+        <div class="prev-lbl mb-1">Session Preview</div>
+        <div class="prev-hrs" id="previewHours">-- hrs</div>
+        <div class="prev-sub" id="previewSub">Enter times above</div>
+      </div>
+
+      <!-- Partial save button (only on step 0 when no time-out yet) -->
+      <button class="partial-save-btn" id="partialSaveBtn" onclick="savePartialSession()" style="display:none;">
+        <i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER
+      </button>
+
+      <!-- Main save button -->
+      <button class="save-btn" id="saveBtn" onclick="saveSession()">
+        <i class="bi bi-check2-circle me-2"></i>SAVE SESSION
+      </button>
+
+    </div><!-- end stepModePanel -->
+
+    <!-- ████ OVERALL LOG PANEL ████ -->
+    <div id="overallModePanel" style="display:none;">
+
+      <!-- Today's sessions summary (shared) -->
+      <div class="today-sessions-wrap" id="todaySessionsWrapOverall" style="display:none;">
+        <div class="sc-lbl mb-2" style="font-size:9px;letter-spacing:2px;color:var(--text-muted);">TODAY'S SESSIONS</div>
+        <div id="todaySessionsListOverall"></div>
+      </div>
+
+      <div class="overall-log-box">
+        <div class="overall-log-title">
+          <i class="bi bi-clock-history"></i>
+          Log Full Session
+        </div>
+
+        <!-- Session 1 row -->
+        <div class="sc-lbl mb-1" style="color:var(--text-muted)">SESSION 1</div>
+        <div class="overall-row">
+          <div>
+            <label class="form-label">TIME IN</label>
+            <input type="time" class="form-control" id="ov-timeIn" oninput="updateOverallPreview()">
+            <button class="stamp-btn sb-in mt-1" style="width:100%" onclick="stampNowField('ov-timeIn',this,'ov')">⏱ STAMP IN</button>
+          </div>
+          <div class="overall-arrow">→</div>
+          <div>
+            <label class="form-label">TIME OUT</label>
+            <input type="time" class="form-control" id="ov-timeOut" oninput="updateOverallPreview()">
+            <button class="stamp-btn sb-out mt-1" style="width:100%" onclick="stampNowField('ov-timeOut',this,'ov')">⏱ STAMP OUT</button>
+          </div>
+        </div>
+
+        <!-- Break toggle -->
+        <div class="overall-divider"></div>
+        <div class="overall-break-toggle" id="ovBreakToggle" onclick="toggleOverallBreak()">
+          <span class="obt-icon">☕</span>
+          <span id="ovBreakToggleText">Include Lunch Break</span>
+          <i class="bi bi-chevron-down ms-auto" id="ovBreakChevron"></i>
+        </div>
+
+        <!-- Break fields (hidden by default) -->
+        <div id="ovBreakFields" style="display:none;">
+          <div class="overall-row">
+            <div>
+              <label class="form-label">BREAK START</label>
+              <input type="time" class="form-control" id="ov-lunchIn" oninput="updateOverallPreview()">
+              <button class="stamp-btn sb-lin mt-1" style="width:100%" onclick="stampNowField('ov-lunchIn',this,'ov')">⏱ STAMP</button>
+            </div>
+            <div class="overall-arrow">→</div>
+            <div>
+              <label class="form-label">BREAK END</label>
+              <input type="time" class="form-control" id="ov-lunchOut" oninput="updateOverallPreview()">
+              <button class="stamp-btn sb-lout mt-1" style="width:100%" onclick="stampNowField('ov-lunchOut',this,'ov')">⏱ STAMP</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="overall-divider"></div>
+
+        <!-- Session 2 (optional) -->
+        <div id="ovSession2Wrap" style="display:none;">
+          <div class="sc-lbl mb-1" style="color:var(--text-muted)">SESSION 2 (OPTIONAL)</div>
+          <div class="overall-row">
+            <div>
+              <label class="form-label">TIME IN</label>
+              <input type="time" class="form-control" id="ov-timeIn2" oninput="updateOverallPreview()">
+              <button class="stamp-btn sb-in mt-1" style="width:100%" onclick="stampNowField('ov-timeIn2',this,'ov')">⏱ STAMP IN</button>
+            </div>
+            <div class="overall-arrow">→</div>
+            <div>
+              <label class="form-label">TIME OUT</label>
+              <input type="time" class="form-control" id="ov-timeOut2" oninput="updateOverallPreview()">
+              <button class="stamp-btn sb-out mt-1" style="width:100%" onclick="stampNowField('ov-timeOut2',this,'ov')">⏱ STAMP OUT</button>
+            </div>
+          </div>
+          <button class="step-skip-btn" style="margin-top:4px;" onclick="removeOvSession2()">
+            <i class="bi bi-dash me-1"></i>Remove Session 2
+          </button>
+          <div class="overall-divider"></div>
+        </div>
+
+        <button class="step-skip-btn" id="ovAddSession2Btn" onclick="addOvSession2()" style="margin-bottom:4px;">
+          <i class="bi bi-plus me-1"></i>Add Another Session
+        </button>
+      </div>
+
+      <!-- Overall Preview -->
+      <div class="preview-box mt-2 mb-2" id="overallPreviewBox">
+        <div class="prev-lbl mb-1">Session Preview</div>
+        <div class="prev-hrs" id="ovPreviewHours">-- hrs</div>
+        <div class="prev-sub" id="ovPreviewSub">Enter times above</div>
+      </div>
+
+      <!-- Single Save Button -->
+      <button class="save-btn" id="ovSaveBtn" onclick="saveOverallSession()">
+        <i class="bi bi-check2-circle me-2"></i>SAVE SESSION
+      </button>
+
+    </div><!-- end overallModePanel -->
+
+  </div>
+</div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ══ SUPABASE ══ */
+const { createClient } = supabase;
+const db = createClient(
+  "https://mzeuxrkqwpanidpijbwk.supabase.co",
+  "sb_publishable_x1zmt6S6U7_p_pWDjsVh3w_tfe7iWzw"
+);
+
+let allLogs = [];
+let currentMode = 'Office';
+let currentStep = 0;
+let currentLogMode = 'step'; // 'step' | 'overall'
+let ovBreakOpen = false;
+let ovSession2Open = false;
+
+/* ══ INJECT FORM ══ */
+function injectForm(slotId) {
+  const slot = document.getElementById(slotId);
+  if (!slot) return;
+  const clone = document.getElementById('formTpl').content.cloneNode(true);
+  slot.innerHTML = '';
+  slot.appendChild(clone);
+  const d = document.getElementById('sessionDate');
+  if (d) { d.value = todayISO(); updateDateTag(); }
+  setMode(currentMode);
+  setLogMode(currentLogMode);
+  currentStep = 0;
+  goStep(0);
+  renderTodaySummary();
+  checkPartialBanner();
+  updatePartialSaveBtnVisibility();
+}
+
+/* ══ LOG MODE SWITCHER ══ */
+function setLogMode(mode) {
+  currentLogMode = mode;
+  const stepPanel    = document.getElementById('stepModePanel');
+  const overallPanel = document.getElementById('overallModePanel');
+  const stepBtn      = document.getElementById('lmsStepBtn');
+  const overallBtn   = document.getElementById('lmsOverallBtn');
+  if (!stepPanel) return;
+
+  if (mode === 'step') {
+    stepPanel.style.display    = 'block';
+    overallPanel.style.display = 'none';
+    stepBtn.className    = 'lms-btn lms-active-step';
+    overallBtn.className = 'lms-btn';
+  } else {
+    stepPanel.style.display    = 'none';
+    overallPanel.style.display = 'block';
+    stepBtn.className    = 'lms-btn';
+    overallBtn.className = 'lms-btn lms-active-overall';
+    renderTodaySummaryOverall();
+    updateOverallPreview();
+  }
+}
+
+/* ══ TOGGLE BREAK (OVERALL) ══ */
+function toggleOverallBreak() {
+  ovBreakOpen = !ovBreakOpen;
+  const fields   = document.getElementById('ovBreakFields');
+  const toggle   = document.getElementById('ovBreakToggle');
+  const chevron  = document.getElementById('ovBreakChevron');
+  const txt      = document.getElementById('ovBreakToggleText');
+  if (!fields) return;
+  fields.style.display = ovBreakOpen ? 'block' : 'none';
+  toggle.classList.toggle('active', ovBreakOpen);
+  chevron.className = ovBreakOpen ? 'bi bi-chevron-up ms-auto' : 'bi bi-chevron-down ms-auto';
+  txt.textContent = ovBreakOpen ? 'Break Included' : 'Include Lunch Break';
+  if (!ovBreakOpen) {
+    ['ov-lunchIn','ov-lunchOut'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  }
+  updateOverallPreview();
+}
+
+function addOvSession2() {
+  ovSession2Open = true;
+  const w = document.getElementById('ovSession2Wrap');
+  const b = document.getElementById('ovAddSession2Btn');
+  if (w) w.style.display = 'block';
+  if (b) b.style.display = 'none';
+}
+function removeOvSession2() {
+  ovSession2Open = false;
+  const w = document.getElementById('ovSession2Wrap');
+  const b = document.getElementById('ovAddSession2Btn');
+  if (w) w.style.display = 'none';
+  if (b) b.style.display = '';
+  ['ov-timeIn2','ov-timeOut2'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  updateOverallPreview();
+}
+
+/* ══ PARTIAL SAVE BUTTON VISIBILITY ══ */
+function updatePartialSaveBtnVisibility() {
+  const pBtn = document.getElementById('partialSaveBtn');
+  if (!pBtn) return;
+  const ti = document.getElementById('timeIn')?.value || '';
+  const to = document.getElementById('timeOut')?.value || '';
+  // Show partial save only on step 0, time-in filled, no time-out
+  pBtn.style.display = (currentStep === 0 && ti && !to) ? 'block' : 'none';
+}
+
+/* ══ PARTIAL SESSION SAVE ══ */
+async function savePartialSession() {
+  const g = id => document.getElementById(id)?.value || '';
+  const ti = g('timeIn');
+  const dateVal = g('sessionDate');
+
+  if (!dateVal) { toast('Select a session date', 'error'); return; }
+  if (!ti)      { toast('Enter Time In first', 'error'); return; }
+
+  const pBtn = document.getElementById('partialSaveBtn');
+  pBtn.disabled = true;
+  pBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING…';
+
+  const pickedDate = new Date(dateVal + 'T00:00:00');
+  const dateStr = pickedDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+  const startDt = parseTime(ti, dateVal);
+
+  // Build partial session object
+  const partialSession = {
+    time_in:  startDt.toISOString(),
+    time_out: null,
+    lunch_in: null, lunch_out: null,
+    hours: 0,
+    partial: true
+  };
+
+  // Check existing record for this date
+  const { data: existing } = await db.from('logs').select('*').eq('date', dateStr);
+
+  if (existing && existing.length > 0) {
+    const prev = existing[0];
+    const prevSessions = prev.sessions || [{
+      time_in: prev.time_in, time_out: prev.time_out,
+      lunch_in: prev.lunch_in, lunch_out: prev.lunch_out,
+      hours: prev.total_hours
+    }];
+
+    // Only add if no other partial session already exists
+    const hasPartial = prevSessions.some(s => s.partial);
+    if (hasPartial) {
+      toast('Already have an open session — complete it first', 'warn');
+      pBtn.disabled = false;
+      pBtn.innerHTML = '<i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER';
+      return;
+    }
+
+    const allSessions = [...prevSessions, partialSession];
+    await db.from('logs').update({
+      mode: currentMode,
+      sessions: allSessions,
+      status: 'partial'
+    }).eq('id', prev.id);
+  } else {
+    await db.from('logs').insert({
+      date: dateStr, mode: currentMode,
+      time_in: startDt.toISOString(),
+      time_out: null,
+      lunch_in: null, lunch_out: null,
+      total_hours: 0,
+      sessions: [partialSession],
+      status: 'partial'
+    });
+  }
+
+  toast(`⏳ Time In saved · ${ti} — come back to complete!`, 'success');
+  pBtn.disabled = false;
+  pBtn.innerHTML = '<i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER';
+  await renderLogs();
+  checkPartialBanner();
+}
+
+/* ══ CHECK PARTIAL BANNER ══ */
+async function checkPartialBanner() {
+  const banner = document.getElementById('partialBanner');
+  const bannerText = document.getElementById('partialBannerText');
+  if (!banner) return;
+
+  // Find any partial log for today
+  const todayStr = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+  const partial = allLogs.find(l => {
+    if (l.date !== todayStr) return false;
+    const sessions = l.sessions || [];
+    return sessions.some(s => s.partial);
+  });
+
+  if (partial) {
+    const ps = (partial.sessions || []).find(s => s.partial);
+    const timeInStr = ps ? new Date(ps.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+    if (bannerText) bannerText.textContent = `Open session · Clocked in at ${timeInStr}`;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+/* ══ RESUME PARTIAL SESSION ══ */
+function resumePartialSession() {
+  const todayStr = new Date().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+  const partial = allLogs.find(l => {
+    if (l.date !== todayStr) return false;
+    return (l.sessions || []).some(s => s.partial);
+  });
+  if (!partial) return;
+
+  const ps = (partial.sessions || []).find(s => s.partial);
+  if (ps) {
+    const d = new Date(ps.time_in);
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    const tiEl = document.getElementById('timeIn');
+    if (tiEl) tiEl.value = `${hh}:${mm}`;
+  }
+
+  // Switch to step mode, go to Time Out step
+  setLogMode('step');
+  goStep(2);
+  updatePreview();
+  toast('Resumed — set your Time Out to complete', 'success');
+}
+
+/* ══ TABS ══ */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  const nb = document.getElementById('bnav-' + tab);
+  if (nb) nb.classList.add('active');
+  if (tab === 'log') { injectForm('tab-log'); }
+  if (tab === 'reports') { updateReports(); }
+  window.scrollTo(0, 0);
+}
+
+/* ══ STEP WIZARD ══ */
+function goStep(n) {
+  currentStep = n;
+  for (let i = 0; i <= 3; i++) {
+    const sp = document.getElementById('sp-' + i);
+    const si = document.getElementById('si-' + i);
+    if (!sp || !si) continue;
+    sp.classList.remove('active');
+    si.classList.remove('active', 'done');
+  }
+  for (let i = 0; i < n; i++) {
+    const si = document.getElementById('si-' + i);
+    if (si) si.classList.add('done');
+  }
+  const curSp = document.getElementById('sp-' + n);
+  const curSi = document.getElementById('si-' + n);
+  if (curSp) curSp.classList.add('active');
+  if (curSi) curSi.classList.add('active');
+  updatePartialSaveBtnVisibility();
+}
+
+function skipBreak() {
+  const li = document.getElementById('lunchIn');
+  const lo = document.getElementById('lunchOut');
+  if (li) li.value = '';
+  if (lo) lo.value = '';
+  goStep(2);
+}
+
+/* ══ CLOCK ══ */
+function tickClock() {
+  const n = new Date();
+  document.getElementById('liveClock').textContent = n.toLocaleTimeString('en-US', { hour12: false });
+  const de = document.getElementById('liveDate');
+  if (de) de.textContent = n.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* ══ DATE ══ */
+function todayISO() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+function setToday() {
+  const el = document.getElementById('sessionDate');
+  if (el) { el.value = todayISO(); updateDateTag(); }
+}
+function updateDateTag() {
+  const el  = document.getElementById('sessionDate');
+  const tag = document.getElementById('dateTag');
+  const ban = document.getElementById('bdBanner');
+  if (!el || !tag) return;
+  const val = el.value;
+  if (!val) { tag.textContent = ''; return; }
+  const picked = new Date(val + 'T00:00:00');
+  const todayM = new Date(); todayM.setHours(0,0,0,0);
+  const diff = Math.round((todayM - picked) / 86400000);
+  if (diff === 0) {
+    tag.innerHTML = '<span style="color:var(--accent3)">✓ Today</span>';
+    ban?.classList.remove('show');
+  } else if (diff > 0) {
+    tag.innerHTML = `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`;
+    ban?.classList.add('show');
+  } else {
+    tag.innerHTML = '<span style="color:var(--warn)">⚠ Future date</span>';
+    ban?.classList.add('show');
+  }
+  renderTodaySummary();
+  renderTodaySummaryOverall();
+}
+
+/* ══ MODE ══ */
+function setMode(m) {
+  currentMode = m;
+  const wm = document.getElementById('workMode');
+  if (wm) wm.value = m;
+  const bo = document.getElementById('btnOffice');
+  const bh = document.getElementById('btnHome');
+  if (bo) bo.className = 'mode-btn' + (m === 'Office' ? ' mo-office' : '');
+  if (bh) bh.className = 'mode-btn' + (m === 'Home'   ? ' mo-home'   : '');
+}
+
+/* ══ PARSE TIME ══ */
+function parseTime(str, base) {
+  const [h, m] = str.split(':').map(Number);
+  const d = base ? new Date(base + 'T00:00:00') : new Date();
+  d.setHours(h, m, 0, 0); return d;
+}
+
+/* ══ PREVIEW (step mode) ══ */
+function updatePreview() {
+  const g = id => document.getElementById(id)?.value || '';
+  const ti=g('timeIn'), to=g('timeOut'), li=g('lunchIn'), lo=g('lunchOut');
+  const ti2=g('timeIn2'), to2=g('timeOut2');
+  const ph=document.getElementById('previewHours'), ps=document.getElementById('previewSub');
+  if (!ph) return;
+
+  let totalHrs = 0, parts = [];
+  if (ti && to) {
+    let s1 = (parseTime(to) - parseTime(ti)) / 3600000;
+    if (li && lo) s1 -= (parseTime(lo) - parseTime(li)) / 3600000;
+    if (s1 > 0) { totalHrs += s1; parts.push(`${s1.toFixed(2)}h`); }
+  }
+  if (ti2 && to2) {
+    const s2 = (parseTime(to2) - parseTime(ti2)) / 3600000;
+    if (s2 > 0) { totalHrs += s2; parts.push(`${s2.toFixed(2)}h`); }
+  }
+
+  if (totalHrs <= 0) {
+    ph.textContent = ti && !to ? `⏳ Clocked in · ${ti}` : '-- hrs';
+    ps.textContent = ti && !to ? 'Waiting for Time Out…' : 'Enter times above';
+    updatePartialSaveBtnVisibility();
+    return;
+  }
+  ph.textContent = `${totalHrs.toFixed(2)} hrs`;
+  ps.textContent = parts.length > 1
+    ? `${parts.join(' + ')} = ${totalHrs.toFixed(2)}h`
+    : (li && lo ? `${totalHrs.toFixed(2)}h · lunch excluded` : 'No lunch break');
+  updatePartialSaveBtnVisibility();
+}
+
+/* ══ PREVIEW (overall mode) ══ */
+function updateOverallPreview() {
+  const g = id => document.getElementById(id)?.value || '';
+  const ti = g('ov-timeIn'), to = g('ov-timeOut');
+  const li = g('ov-lunchIn'), lo = g('ov-lunchOut');
+  const ti2 = g('ov-timeIn2'), to2 = g('ov-timeOut2');
+  const ph = document.getElementById('ovPreviewHours');
+  const ps = document.getElementById('ovPreviewSub');
+  if (!ph) return;
+
+  let totalHrs = 0, parts = [];
+  if (ti && to) {
+    let s1 = (parseTime(to) - parseTime(ti)) / 3600000;
+    if (li && lo) s1 -= (parseTime(lo) - parseTime(li)) / 3600000;
+    if (s1 > 0) { totalHrs += s1; parts.push(`${s1.toFixed(2)}h`); }
+  }
+  if (ti2 && to2) {
+    const s2 = (parseTime(to2) - parseTime(ti2)) / 3600000;
+    if (s2 > 0) { totalHrs += s2; parts.push(`${s2.toFixed(2)}h`); }
+  }
+
+  if (totalHrs <= 0) {
+    ph.textContent = '-- hrs'; ps.textContent = 'Enter times above'; return;
+  }
+  ph.textContent = `${totalHrs.toFixed(2)} hrs`;
+  ps.textContent = parts.length > 1
+    ? `${parts.join(' + ')} = ${totalHrs.toFixed(2)}h`
+    : (li && lo ? `${totalHrs.toFixed(2)}h · lunch excluded` : 'No lunch break');
+}
+
+/* ══ STAMP NOW (step mode) ══ */
+function stampNow(fieldId, btn) {
+  const n = new Date();
+  const hh = String(n.getHours()).padStart(2,'0');
+  const mm = String(n.getMinutes()).padStart(2,'0');
+  const el = document.getElementById(fieldId);
+  if (el) el.value = `${hh}:${mm}`;
+  updatePreview();
+  btn.classList.add('stamped', 'pulse');
+  btn.innerHTML = `✓ ${hh}:${mm}`;
+  setTimeout(() => btn.classList.remove('pulse'), 280);
+  const lbl = { timeIn:'Time In', timeOut:'Time Out', lunchIn:'Break Start', lunchOut:'Break End', timeIn2:'Session 2 In', timeOut2:'Session 2 Out' };
+  toast(`Stamped ${hh}:${mm} → ${lbl[fieldId] || fieldId}`);
+
+  if (fieldId === 'timeIn' && currentStep === 0)   setTimeout(() => goStep(1), 400);
+  if (fieldId === 'lunchOut' && currentStep === 1) setTimeout(() => goStep(2), 400);
+  if (fieldId === 'timeOut' && currentStep === 2)  setTimeout(() => goStep(3), 400);
+  updatePartialSaveBtnVisibility();
+}
+
+/* ══ STAMP NOW (overall mode) ══ */
+function stampNowField(fieldId, btn) {
+  const n = new Date();
+  const hh = String(n.getHours()).padStart(2,'0');
+  const mm = String(n.getMinutes()).padStart(2,'0');
+  const el = document.getElementById(fieldId);
+  if (el) el.value = `${hh}:${mm}`;
+  updateOverallPreview();
+  btn.classList.add('stamped', 'pulse');
+  btn.innerHTML = `✓ ${hh}:${mm}`;
+  setTimeout(() => btn.classList.remove('pulse'), 280);
+  toast(`Stamped ${hh}:${mm}`);
+}
+
+/* ══ RENDER TODAY'S SESSIONS SUMMARY (step mode) ══ */
+function renderTodaySummary() {
+  const dateVal = document.getElementById('sessionDate')?.value;
+  const wrap = document.getElementById('todaySessionsWrap');
+  const list = document.getElementById('todaySessionsList');
+  if (!wrap || !list) return;
+
+  const dateStr = dateVal
+    ? new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'})
+    : null;
+  const existing = allLogs.filter(l => l.date === dateStr);
+  if (!existing.length) { wrap.style.display = 'none'; return; }
+
+  wrap.style.display = 'block';
+  list.innerHTML = '';
+  let dayTotal = 0;
+
+  existing.forEach(log => {
+    const sessions = log.sessions || [{
+      time_in: log.time_in, time_out: log.time_out,
+      lunch_in: log.lunch_in, lunch_out: log.lunch_out,
+      hours: log.total_hours
+    }];
+    sessions.forEach((s, j) => {
+      if (s.partial) {
+        const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const item = document.createElement('div');
+        item.className = 'today-session-item';
+        item.innerHTML = `<span class="tsi-times">Session ${j+1}: ${ti} – ???</span><span class="tsi-open">IN PROGRESS</span>`;
+        list.appendChild(item);
+        return;
+      }
+      const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const to = new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      dayTotal += parseFloat(s.hours||log.total_hours||0);
+      const item = document.createElement('div');
+      item.className = 'today-session-item';
+      item.innerHTML = `<span class="tsi-times">Session ${j+1}: ${ti} – ${to}</span><span class="tsi-hours">${parseFloat(s.hours||log.total_hours).toFixed(2)}h</span>`;
+      list.appendChild(item);
+    });
+  });
+
+  if (dayTotal > 0) {
+    const totRow = document.createElement('div');
+    totRow.className = 'tsi-total-row mt-1';
+    totRow.innerHTML = `<span class="tsi-total-lbl">Total today</span><span class="tsi-total-hrs">${dayTotal.toFixed(2)}h</span>`;
+    list.appendChild(totRow);
+  }
+}
+
+/* ══ RENDER TODAY'S SESSIONS (overall panel mirror) ══ */
+function renderTodaySummaryOverall() {
+  const dateVal = document.getElementById('sessionDate')?.value;
+  const wrap = document.getElementById('todaySessionsWrapOverall');
+  const list = document.getElementById('todaySessionsListOverall');
+  if (!wrap || !list) return;
+
+  const dateStr = dateVal
+    ? new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'})
+    : null;
+  const existing = allLogs.filter(l => l.date === dateStr);
+  if (!existing.length) { wrap.style.display = 'none'; return; }
+
+  wrap.style.display = 'block';
+  list.innerHTML = '';
+  let dayTotal = 0;
+
+  existing.forEach(log => {
+    const sessions = log.sessions || [{
+      time_in: log.time_in, time_out: log.time_out, hours: log.total_hours
+    }];
+    sessions.forEach((s, j) => {
+      if (s.partial) {
+        const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const item = document.createElement('div');
+        item.className = 'today-session-item';
+        item.innerHTML = `<span class="tsi-times">Session ${j+1}: ${ti} – ???</span><span class="tsi-open">IN PROGRESS</span>`;
+        list.appendChild(item);
+        return;
+      }
+      const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const to = new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      dayTotal += parseFloat(s.hours||log.total_hours||0);
+      const item = document.createElement('div');
+      item.className = 'today-session-item';
+      item.innerHTML = `<span class="tsi-times">Session ${j+1}: ${ti} – ${to}</span><span class="tsi-hours">${parseFloat(s.hours||log.total_hours).toFixed(2)}h</span>`;
+      list.appendChild(item);
+    });
+  });
+
+  if (dayTotal > 0) {
+    const totRow = document.createElement('div');
+    totRow.className = 'tsi-total-row mt-1';
+    totRow.innerHTML = `<span class="tsi-total-lbl">Total today</span><span class="tsi-total-hrs">${dayTotal.toFixed(2)}h</span>`;
+    list.appendChild(totRow);
+  }
+}
+
+/* ══ SAVE SESSION (step mode) ══ */
+async function saveSession() {
+  const g = id => document.getElementById(id)?.value || '';
+  const ti=g('timeIn'), to=g('timeOut'), li=g('lunchIn'), lo=g('lunchOut');
+  const ti2=g('timeIn2'), to2=g('timeOut2');
+  const dateVal=g('sessionDate');
+
+  if (!dateVal) { toast('Select a session date', 'error'); return; }
+  if (!ti && !ti2) { toast('Enter at least one Time In', 'error'); return; }
+  if (ti && !to && !ti2) { toast('Time Out is missing — or use "Save Time In" to clock in partially', 'warn'); return; }
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING...';
+
+  const pickedDate = new Date(dateVal + 'T00:00:00');
+  const dateStr = pickedDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+  const todayM = new Date(); todayM.setHours(0,0,0,0);
+  const isBack = Math.round((todayM - pickedDate) / 86400000) > 0;
+
+  const sessions = [];
+  if (ti && to) {
+    const start = parseTime(ti, dateVal), end = parseTime(to, dateVal);
+    let h = (end - start) / 3600000;
+    if (li && lo) h -= (parseTime(lo, dateVal) - parseTime(li, dateVal)) / 3600000;
+    if (h > 0) sessions.push({
+      time_in: start.toISOString(), time_out: end.toISOString(),
+      lunch_in: li ? parseTime(li,dateVal).toISOString() : null,
+      lunch_out: lo ? parseTime(lo,dateVal).toISOString() : null,
+      hours: parseFloat(h.toFixed(2))
+    });
+  }
+  if (ti2 && to2) {
+    const start2 = parseTime(ti2, dateVal), end2 = parseTime(to2, dateVal);
+    const h2 = (end2 - start2) / 3600000;
+    if (h2 > 0) sessions.push({
+      time_in: start2.toISOString(), time_out: end2.toISOString(),
+      lunch_in: null, lunch_out: null,
+      hours: parseFloat(h2.toFixed(2))
+    });
+  }
+
+  if (!sessions.length) {
+    toast('Total hours must be positive', 'error');
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION'; return;
+  }
+
+  await _persistSessions(sessions, dateVal, dateStr, isBack, btn, 'saveBtn', '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION');
+}
+
+/* ══ SAVE SESSION (overall mode) ══ */
+async function saveOverallSession() {
+  const g = id => document.getElementById(id)?.value || '';
+  const ti = g('ov-timeIn'), to = g('ov-timeOut');
+  const li = g('ov-lunchIn'), lo = g('ov-lunchOut');
+  const ti2 = g('ov-timeIn2'), to2 = g('ov-timeOut2');
+  const dateVal = g('sessionDate');
+
+  if (!dateVal) { toast('Select a session date', 'error'); return; }
+  if (!ti)  { toast('Enter Time In', 'error'); return; }
+  if (!to)  { toast('Enter Time Out', 'error'); return; }
+
+  const btn = document.getElementById('ovSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING...';
+
+  const pickedDate = new Date(dateVal + 'T00:00:00');
+  const dateStr = pickedDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'2-digit' });
+  const todayM = new Date(); todayM.setHours(0,0,0,0);
+  const isBack = Math.round((todayM - pickedDate) / 86400000) > 0;
+
+  const sessions = [];
+  const start = parseTime(ti, dateVal), end = parseTime(to, dateVal);
+  let h = (end - start) / 3600000;
+  if (ovBreakOpen && li && lo) h -= (parseTime(lo, dateVal) - parseTime(li, dateVal)) / 3600000;
+  if (h > 0) sessions.push({
+    time_in: start.toISOString(), time_out: end.toISOString(),
+    lunch_in: (ovBreakOpen && li) ? parseTime(li, dateVal).toISOString() : null,
+    lunch_out: (ovBreakOpen && lo) ? parseTime(lo, dateVal).toISOString() : null,
+    hours: parseFloat(h.toFixed(2))
+  });
+
+  if (ovSession2Open && ti2 && to2) {
+    const start2 = parseTime(ti2, dateVal), end2 = parseTime(to2, dateVal);
+    const h2 = (end2 - start2) / 3600000;
+    if (h2 > 0) sessions.push({
+      time_in: start2.toISOString(), time_out: end2.toISOString(),
+      lunch_in: null, lunch_out: null,
+      hours: parseFloat(h2.toFixed(2))
+    });
+  }
+
+  if (!sessions.length) {
+    toast('Total hours must be positive', 'error');
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION'; return;
+  }
+
+  await _persistSessions(sessions, dateVal, dateStr, isBack, btn, 'ovSaveBtn', '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION');
+}
+
+/* ══ SHARED PERSIST LOGIC ══ */
+async function _persistSessions(sessions, dateVal, dateStr, isBack, btn, btnId, resetLabel) {
+  const totalHours = sessions.reduce((s, x) => s + x.hours, 0);
+  const firstIn  = sessions[0].time_in;
+  const lastOut  = sessions[sessions.length-1].time_out;
+
+  const { data: existing, error: fe } = await db.from('logs').select('*').eq('date', dateStr);
+  if (fe) {
+    toast('Error checking logs', 'error');
+    btn.disabled = false; btn.innerHTML = resetLabel; return;
+  }
+
+  if (existing && existing.length > 0) {
+    const prev = existing[0];
+    // Filter out any partial sessions and replace with complete ones
+    const prevSessions = (prev.sessions || [{
+      time_in: prev.time_in, time_out: prev.time_out,
+      lunch_in: prev.lunch_in, lunch_out: prev.lunch_out,
+      hours: prev.total_hours
+    }]).filter(s => !s.partial);
+
+    const allSessions = [...prevSessions, ...sessions];
+    const newTotal = allSessions.reduce((s, x) => s + parseFloat(x.hours||0), 0);
+
+    const allIns  = allSessions.map(s => new Date(s.time_in));
+    const allOuts = allSessions.map(s => new Date(s.time_out));
+    const earliest = new Date(Math.min(...allIns));
+    const latest   = new Date(Math.max(...allOuts));
+
+    const { error: ue } = await db.from('logs').update({
+      mode: currentMode,
+      time_in:  earliest.toISOString(),
+      time_out: latest.toISOString(),
+      lunch_in:  sessions[0]?.lunch_in  || prev.lunch_in  || null,
+      lunch_out: sessions[0]?.lunch_out || prev.lunch_out || null,
+      total_hours: parseFloat(newTotal.toFixed(2)),
+      sessions: allSessions,
+      status: 'complete'
+    }).eq('id', prev.id);
+
+    if (ue) toast('Error updating record', 'error');
+    else {
+      toast(`➕ Added session · Total today: ${newTotal.toFixed(2)} hrs`);
+      clearForm();
+    }
+  } else {
+    const { error } = await db.from('logs').insert({
+      date: dateStr, mode: currentMode,
+      time_in: firstIn, time_out: lastOut,
+      lunch_in: sessions[0]?.lunch_in || null,
+      lunch_out: sessions[0]?.lunch_out || null,
+      total_hours: parseFloat(totalHours.toFixed(2)),
+      sessions: sessions,
+      status: 'complete'
+    });
+    if (error) toast('Error saving session', 'error');
+    else {
+      toast(isBack
+        ? `Backdated · ${dateStr} · ${totalHours.toFixed(2)} hrs`
+        : `Saved · ${totalHours.toFixed(2)} hrs logged`);
+      clearForm();
+    }
+  }
+
+  btn.disabled = false; btn.innerHTML = resetLabel;
+  await renderLogs();
+  checkPartialBanner();
+}
+
+function clearForm() {
+  ['timeIn','timeOut','lunchIn','lunchOut','timeIn2','timeOut2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['ov-timeIn','ov-timeOut','ov-lunchIn','ov-lunchOut','ov-timeIn2','ov-timeOut2'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  setToday(); updatePreview(); updateOverallPreview(); goStep(0);
+  renderTodaySummary(); renderTodaySummaryOverall();
+  updatePartialSaveBtnVisibility();
+  // Reset overall toggles
+  ovBreakOpen = false; ovSession2Open = false;
+  const bf = document.getElementById('ovBreakFields');
+  const s2w = document.getElementById('ovSession2Wrap');
+  const s2b = document.getElementById('ovAddSession2Btn');
+  const bt = document.getElementById('ovBreakToggle');
+  const bTxt = document.getElementById('ovBreakToggleText');
+  const bChev = document.getElementById('ovBreakChevron');
+  if (bf) bf.style.display = 'none';
+  if (s2w) s2w.style.display = 'none';
+  if (s2b) s2b.style.display = '';
+  if (bt) bt.classList.remove('active');
+  if (bTxt) bTxt.textContent = 'Include Lunch Break';
+  if (bChev) bChev.className = 'bi bi-chevron-down ms-auto';
+}
+
+/* ══ WEEK ══ */
+function getWeek(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const ys = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - ys) / 86400000) + 1) / 7);
+}
+
+/* ══ RENDER LOGS ══ */
+async function renderLogs() {
+  const { data, error } = await db.from('logs').select('*').order('id', { ascending: false });
+  if (error) { toast('Failed to load logs', 'error'); return; }
+  allLogs = data || [];
+
+  const today = new Date(), cw = getWeek(today);
+  let ojt=0, wk=0, mo=0, td=0;
+  allLogs.forEach(l => {
+    const h = parseFloat(l.total_hours) || 0; ojt += h;
+    const d = new Date(l.time_in);
+    if (d.getFullYear()===today.getFullYear()&&d.getMonth()===today.getMonth()&&d.getDate()===today.getDate()) td+=h;
+    if (getWeek(d)===cw&&d.getFullYear()===today.getFullYear()) wk+=h;
+    if (d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear()) mo+=h;
+  });
+
+  const pct = Math.min(ojt/300*100, 100);
+  const setT = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  const setS = (id,v) => { const e=document.getElementById(id); if(e) e.style.width=v; };
+  setT('ojtCurrent', ojt.toFixed(2));
+  setS('ojtFill', pct+'%');
+  setT('ojtPct', pct.toFixed(1)+'% complete');
+  setT('ojtRemaining', Math.max(0,300-ojt).toFixed(2)+' hrs remaining');
+  setT('todayHours', td.toFixed(2));
+  setT('weekHours',  wk.toFixed(2));
+  setT('monthHours', mo.toFixed(2));
+
+  const sv = document.getElementById('monthPicker')?.value;
+  const n = new Date();
+  const [sY,sM] = sv ? sv.split('-').map(Number) : [n.getFullYear(), n.getMonth()+1];
+  const filtered = allLogs.filter(l => {
+    const d = new Date(l.time_in);
+    return d.getFullYear()===sY && (d.getMonth()+1)===sM;
+  });
+
+  renderTable(filtered);
+  renderCards(filtered);
+  renderTodaySummary();
+  renderTodaySummaryOverall();
+  checkPartialBanner();
+}
+
+function sessionsText(log) {
+  const sessions = log.sessions;
+  if (!sessions || !sessions.length) {
+    const ti = new Date(log.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const to = new Date(log.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `${ti} – ${to}`;
+  }
+  return sessions.map((s,i) => {
+    if (s.partial) {
+      const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return `<span style="display:block">${i+1}. ${ti} – <span style="color:var(--warn)">IN PROGRESS</span></span>`;
+    }
+    const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const to = new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return `<span style="display:block">${i+1}. ${ti}–${to} <span style="color:var(--accent)">(${parseFloat(s.hours).toFixed(2)}h)</span></span>`;
+  }).join('');
+}
+
+function renderTable(rows) {
+  const tb = document.getElementById('logBody');
+  if (!tb) return;
+  tb.innerHTML = '';
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="ei">📂</div>No sessions this month</div></td></tr>`;
+    return;
+  }
+  rows.forEach((l, i) => {
+    const h = parseFloat(l.total_hours);
+    const isPartial = l.status === 'partial' || (l.sessions||[]).some(s=>s.partial);
+    const hc = isPartial ? '' : (h>=8?'h-hi':h>=6?'h-mid':'h-lo');
+    const mc = isPartial ? 'b-open' : (l.mode==='Office'?'b-office':'b-home');
+    const mi = l.mode==='Office'?'🏢':'🏠';
+    const lunch = l.lunch_in && l.lunch_out
+      ? `${new Date(l.lunch_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}–${new Date(l.lunch_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`
+      : '<span style="color:var(--text-dim)">—</span>';
+    const totalDisp = isPartial ? '<span style="color:var(--warn)">⏳ Open</span>' : `${h.toFixed(2)}h`;
+    const tr = document.createElement('tr');
+    tr.style.animationDelay = `${i*30}ms`;
+    tr.innerHTML = `
+      <td style="color:var(--text-muted)">${l.date}</td>
+      <td><span class="badge ${mc}">${mi} ${isPartial ? 'OPEN' : l.mode.toUpperCase()}</span></td>
+      <td style="font-size:11px;line-height:1.6">${sessionsText(l)}</td>
+      <td style="font-size:10px">${lunch}</td>
+      <td class="${hc}">${totalDisp}</td>
+      <td><button class="del-btn" onclick="deleteLog(${l.id})" title="Delete"><i class="bi bi-x-lg"></i></button></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+function renderCards(rows) {
+  const w = document.getElementById('logCards');
+  if (!w) return;
+  w.innerHTML = '';
+  if (!rows.length) {
+    w.innerHTML = `<div class="empty-state"><div class="ei">📂</div>No sessions this month</div>`;
+    return;
+  }
+  rows.forEach((l, i) => {
+    const h = parseFloat(l.total_hours);
+    const isPartial = l.status === 'partial' || (l.sessions||[]).some(s=>s.partial);
+    const hc = isPartial ? 'h-lo' : (h>=8?'h-hi':h>=6?'h-mid':'h-lo');
+    const mc = isPartial ? 'b-open' : (l.mode==='Office'?'b-office':'b-home');
+    const mi = l.mode==='Office'?'🏢':'🏠';
+    const sessions = l.sessions || [{
+      time_in: l.time_in, time_out: l.time_out, hours: l.total_hours
+    }];
+    const lunch = l.lunch_in && l.lunch_out
+      ? `${new Date(l.lunch_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}–${new Date(l.lunch_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`
+      : 'No break';
+
+    const c = document.createElement('div');
+    c.className = `log-card${isPartial?' lc-open':''}`;
+    c.style.animationDelay = `${i*30}ms`;
+
+    const subsHtml = sessions.map((s, j) => {
+      if (s.partial) {
+        const tin = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        return `<div class="lc-sub"><span>Session ${j+1}: ${tin} – ???</span><span class="tsi-open" style="font-size:10px">IN PROGRESS</span></div>`;
+      }
+      const tin  = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const tout = new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      return `<div class="lc-sub"><span>Session ${j+1}: ${tin} – ${tout}</span><span class="lcs-hrs">${parseFloat(s.hours).toFixed(2)}h</span></div>`;
+    }).join('');
+
+    const totalDisp = isPartial ? '<span class="tsi-open" style="font-size:12px">IN PROGRESS</span>' : `<span class="lc-hrs ${hc}">${h.toFixed(2)}h</span>`;
+
+    c.innerHTML = `
+      <div class="lc-top">
+        <div>
+          <div class="lc-date">${l.date}</div>
+          <span class="badge ${mc} mt-1">${mi} ${isPartial ? 'OPEN SESSION' : l.mode.toUpperCase()}</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          ${totalDisp}
+          <button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-circle"></i></button>
+        </div>
+      </div>
+      <div class="lc-sub-sessions">${subsHtml}</div>
+      <div class="lc-row mt-2">
+        <span><i class="bi bi-cup-hot" style="color:var(--accent3)"></i>${lunch}</span>
+      </div>`;
+    w.appendChild(c);
+  });
+}
+
+/* ══ DELETE ══ */
+async function deleteLog(id) {
+  if (!confirm('Delete this session?')) return;
+  const { error } = await db.from('logs').delete().eq('id', id);
+  if (error) toast('Failed to delete', 'error');
+  else { toast('Session deleted'); renderLogs(); }
+}
+
+/* ══ REPORTS ══ */
+function updateReports() {
+  if (!allLogs.length) return;
+  const completeLogs = allLogs.filter(l => l.status !== 'partial' && !(l.sessions||[]).every(s=>s.partial));
+  const total   = completeLogs.reduce((s,l) => s + (parseFloat(l.total_hours)||0), 0);
+  const days    = new Set(completeLogs.map(l => l.date)).size;
+  const avg     = days ? total/days : 0;
+  const remain  = Math.max(0, 300-total);
+  const eta     = avg > 0 ? `~${Math.ceil(remain/avg)} days` : '—';
+  const office  = completeLogs.filter(l => l.mode==='Office').length;
+  const wfh     = completeLogs.filter(l => l.mode==='Home').length;
+
+  const st = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  const ss = (id,v) => { const e=document.getElementById(id); if(e) e.style.width=v; };
+  st('rptTotal', total.toFixed(2));
+  ss('rptFill', Math.min(total/300*100,100)+'%');
+  st('rptAvg', avg.toFixed(2));
+  st('rptDays', days);
+  st('rptEta', eta);
+  st('rptOffice', office);
+  st('rptWfh', wfh);
+  st('rptRemaining', remain.toFixed(2));
+}
+
+/* ══ TOAST ══ */
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `tt t-${type}`;
+  el.innerHTML = `<div class="tt-dot"></div><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => {
+    el.style.cssText = 'opacity:0;transform:translateX(16px);transition:.3s';
+    setTimeout(() => el.remove(), 320);
+  }, 3200);
+}
+
+/* ══ INIT ══ */
+const _now = new Date();
+const mpEl = document.getElementById('monthPicker');
+if (mpEl) mpEl.value = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}`;
+
+function tryDesktopForm() {
+  const slot = document.getElementById('desktopFormSlot');
+  if (slot && window.innerWidth >= 992 && !slot.children.length) injectForm('desktopFormSlot');
+}
+tryDesktopForm();
+window.addEventListener('resize', tryDesktopForm);
+renderLogs();
+</script>
+</body>
+</html>
