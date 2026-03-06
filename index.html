@@ -1,1164 +1,1140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#07080f">
-  <title>devOseo · TimeTrack</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#07080f">
+<title>devOseo · TimeTrack</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#07080f;--surface:#0d0f1c;--s2:#13162a;--s3:#1a1e35;
+  --border:#1f2440;--bb:#2e3560;
+  --a:#4f8ef7;--a2:#7c5cfc;--a3:#00e5c0;
+  --warn:#ff6b35;--ok:#00e5a0;
+  --text:#e8ecff;--tm:#6b739e;--td:#3a3f5c;
+  --mono:'Space Mono',monospace;--sans:'Syne',sans-serif;
+  --r:12px;--nav:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;padding-bottom:calc(var(--nav)+8px)}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,142,247,.025)1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,.025)1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0}
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bb);border-radius:9px}
 
-  <style>
-    :root {
-      --bg:           #07080f;
-      --surface:      #0d0f1c;
-      --surface2:     #13162a;
-      --surface3:     #1a1e35;
-      --border:       #1f2440;
-      --border-bright:#2e3560;
-      --accent:       #4f8ef7;
-      --accent2:      #7c5cfc;
-      --accent3:      #00e5c0;
-      --warn:         #ff6b35;
-      --success:      #00e5a0;
-      --text:         #e8ecff;
-      --text-muted:   #6b739e;
-      --text-dim:     #3a3f5c;
-      --mono:         'Space Mono', monospace;
-      --display:      'Syne', sans-serif;
-      --r:            12px;
-      --bot-nav:      64px;
-    }
+/* top nav */
+.topnav{position:sticky;top:0;z-index:200;background:rgba(7,8,15,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topnav-inner{display:flex;align-items:center;justify-content:space-between;height:54px;max-width:1160px;margin:0 auto;padding:0 14px}
+.logo{width:34px;height:34px;background:linear-gradient(135deg,var(--a),var(--a2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#fff;box-shadow:0 0 14px rgba(79,142,247,.4);flex-shrink:0}
+.brand{font-size:15px;font-weight:800;background:linear-gradient(90deg,var(--text) 55%,var(--a));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.clock{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--a3);letter-spacing:2px;text-shadow:0 0 12px rgba(0,229,192,.4)}
+.clocksub{font-size:9px;color:var(--tm);font-family:var(--mono);text-align:right}
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+/* bottom nav */
+.botnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);z-index:300;background:rgba(13,15,28,.97);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--td);font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;-webkit-tap-highlight-color:transparent}
+.bn i{font-size:21px;line-height:1}
+.bn.on{color:var(--a)}.bn.on i{filter:drop-shadow(0 0 6px rgba(79,142,247,.8))}
+.bn:nth-child(2).on{color:var(--a2)}.bn:nth-child(2).on i{filter:drop-shadow(0 0 6px rgba(124,92,252,.8))}
+.bn:nth-child(3).on{color:var(--a3)}.bn:nth-child(3).on i{filter:drop-shadow(0 0 6px rgba(0,229,192,.8))}
 
-    body {
-      font-family: var(--display);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      padding-bottom: calc(var(--bot-nav) + 8px);
-    }
+/* pages */
+.wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:16px 14px 0}
+.page{display:none}.page.on{display:block}
 
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(79,142,247,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(79,142,247,0.025) 1px, transparent 1px);
-      background-size: 36px 36px;
-      pointer-events: none; z-index: 0;
-    }
-    body::after {
-      content: '';
-      position: fixed; width: 500px; height: 500px; top: -150px; right: -150px;
-      background: radial-gradient(circle, rgba(124,92,252,0.1) 0%, transparent 70%);
-      pointer-events: none; z-index: 0;
-    }
+/* cards */
+.card{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:var(--r)!important;color:var(--text)!important}
 
-    .card { background: var(--surface) !important; border: 1px solid var(--border) !important; border-radius: var(--r) !important; color: var(--text) !important; }
-    .form-control, .form-select { background: var(--surface2) !important; border: 1px solid var(--border) !important; color: var(--text) !important; font-family: var(--mono); font-size: 13px; border-radius: 8px !important; color-scheme: dark; padding: 10px 12px; }
-    .form-control:focus, .form-select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(79,142,247,0.15) !important; background: var(--surface2) !important; color: var(--text) !important; }
-    .form-label { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
-    .table { color: var(--text) !important; font-family: var(--mono); font-size: 12px; --bs-table-bg: transparent; --bs-table-hover-bg: var(--surface2); --bs-table-border-color: var(--border); }
-    .table thead th { background: var(--surface2) !important; color: var(--text-muted); font-size: 9px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid var(--border) !important; padding: 10px 12px; white-space: nowrap; }
-    .table td { border-color: var(--border) !important; vertical-align: middle; padding: 10px 12px; }
-    .table-hover tbody tr:hover td { background: var(--surface2) !important; }
+/* ojt hero */
+.ojt{position:relative;overflow:hidden;padding:20px 22px}
+.ojt::before{content:'OJT';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:70px;font-weight:800;color:rgba(79,142,247,.04);font-family:var(--mono);pointer-events:none}
+.ojt-lbl{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--tm);font-family:var(--mono);margin-bottom:6px}
+.ojt-num{font-size:34px;font-weight:800;font-family:var(--mono);line-height:1;background:linear-gradient(135deg,var(--a),var(--a3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ojt-bar{height:5px;background:var(--s3);border-radius:99px;overflow:hidden;margin:8px 0 6px}
+.ojt-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a3));border-radius:99px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(0,229,192,.5)}
+.ojt-meta{display:flex;justify-content:space-between;font-size:10px;font-family:var(--mono);color:var(--tm)}
 
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
+/* stat cards */
+.scard{position:relative;overflow:hidden;padding:14px;transition:transform .2s}
+.scard:hover{transform:translateY(-2px);border-color:var(--bb)!important}
+.scard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc-b::after{background:linear-gradient(90deg,var(--a),transparent)}
+.sc-p::after{background:linear-gradient(90deg,var(--a2),transparent)}
+.sc-t::after{background:linear-gradient(90deg,var(--a3),transparent)}
+.sc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--tm);font-family:var(--mono);margin-bottom:3px}
+.sc-val{font-size:24px;font-weight:800;font-family:var(--mono);line-height:1}
+.sc-sub{font-size:9px;color:var(--tm);font-family:var(--mono);margin-top:2px}
+.sc-b .sc-val{color:var(--a)}.sc-p .sc-val{color:var(--a2)}.sc-t .sc-val{color:var(--a3)}
 
-    .app-wrap { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 16px 14px 0; }
+/* section label */
+.slbl{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--tm);font-family:var(--mono);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border)}
 
-    .top-nav { position: sticky; top: 0; z-index: 200; background: rgba(7,8,15,0.93); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
-    .top-nav-inner { display: flex; align-items: center; justify-content: space-between; height: 54px; max-width: 1160px; margin: 0 auto; padding: 0 14px; }
-    .nav-brand { display: flex; align-items: center; gap: 10px; }
-    .logo-mark { width: 34px; height: 34px; flex-shrink: 0; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 700; color: #fff; box-shadow: 0 0 14px rgba(79,142,247,0.4); }
-    .brand-name { font-size: 15px; font-weight: 800; letter-spacing: -.3px; background: linear-gradient(90deg, var(--text) 55%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; white-space: nowrap; }
-    .brand-sub { font-size: 9px; color: var(--text-muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
-    .live-clock-top { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent3); letter-spacing: 2px; text-shadow: 0 0 12px rgba(0,229,192,0.4); }
-    .live-date-top  { font-size: 9px; color: var(--text-muted); font-family: var(--mono); text-align: right; }
+/* table */
+.table{color:var(--text)!important;font-family:var(--mono);font-size:12px;--bs-table-bg:transparent;--bs-table-hover-bg:var(--s2);--bs-table-border-color:var(--border)}
+.table thead th{background:var(--s2)!important;color:var(--tm);font-size:9px;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--border)!important;padding:10px 12px;white-space:nowrap}
+.table td{border-color:var(--border)!important;vertical-align:middle;padding:10px 12px}
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: var(--bot-nav); z-index: 300; background: rgba(13,15,28,0.97); backdrop-filter: blur(16px); border-top: 1px solid var(--border); display: flex; align-items: stretch; }
-    .bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; color: var(--text-dim); font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: color .2s; padding: 8px 4px; -webkit-tap-highlight-color: transparent; }
-    .bnav-item i { font-size: 21px; line-height: 1; }
-    .bnav-item.active { color: var(--accent); }
-    .bnav-item.active i { filter: drop-shadow(0 0 6px rgba(79,142,247,0.8)); }
-    .bnav-item:nth-child(2).active { color: var(--accent2); }
-    .bnav-item:nth-child(2).active i { filter: drop-shadow(0 0 6px rgba(124,92,252,0.8)); }
-    .bnav-item:nth-child(3).active { color: var(--accent3); }
-    .bnav-item:nth-child(3).active i { filter: drop-shadow(0 0 6px rgba(0,229,192,0.8)); }
+/* form controls */
+.flbl{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);margin-bottom:5px;display:block}
+.finput{background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;color-scheme:dark;width:100%;transition:border-color .2s,box-shadow .2s}
+.finput:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(79,142,247,.12)}
+input[type=month].finput{width:auto;padding:6px 10px;font-size:12px}
 
-    .tab-page { display: none; }
-    .tab-page.active { display: block; }
+.modebtn{padding:10px 8px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1px;text-align:center;transition:all .2s;border:none;background:var(--s2);color:var(--tm);box-shadow:inset 0 0 0 1px var(--border)}
+.modebtn:hover{color:var(--text);box-shadow:inset 0 0 0 1px var(--bb)}
+.modebtn.m-off{background:rgba(79,142,247,.12);color:var(--a);box-shadow:inset 0 0 0 1.5px var(--a)}
+.modebtn.m-home{background:rgba(124,92,252,.12);color:var(--a2);box-shadow:inset 0 0 0 1.5px var(--a2)}
 
-    /* ── OJT HERO ── */
-    .ojt-hero { position: relative; overflow: hidden; padding: 20px 22px; }
-    .ojt-hero::before { content: 'OJT'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 70px; font-weight: 800; color: rgba(79,142,247,0.04); font-family: var(--mono); pointer-events: none; letter-spacing: -4px; }
-    .ojt-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 6px; }
-    .ojt-nums { display: flex; align-items: baseline; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-    .ojt-current { font-size: 34px; font-weight: 800; font-family: var(--mono); line-height: 1; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .ojt-slash { color: var(--text-dim); font-size: 20px; }
-    .ojt-total { font-size: 20px; font-weight: 700; color: var(--text-dim); font-family: var(--mono); }
-    .ojt-unit  { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
-    .ojt-bar   { height: 5px; background: var(--surface3); border-radius: 99px; overflow: hidden; margin-bottom: 7px; }
-    .ojt-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 99px; width: 0%; transition: width 1.1s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 10px rgba(0,229,192,0.5); }
-    .ojt-meta  { display: flex; justify-content: space-between; font-size: 10px; font-family: var(--mono); color: var(--text-muted); }
+.todaybtn{flex-shrink:0;padding:10px 12px;background:var(--s3);border:1px solid var(--bb);border-radius:8px;color:var(--a3);font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.todaybtn:hover{background:rgba(0,229,192,.12);border-color:var(--a3)}
+.dtag{font-family:var(--mono);font-size:10px;margin-top:5px;min-height:16px}
+.divider{height:1px;background:var(--border);margin:14px 0}
 
-    .stat-card { position: relative; overflow: hidden; padding: 14px 14px; transition: transform .2s; }
-    .stat-card:hover { transform: translateY(-2px); border-color: var(--border-bright) !important; }
-    .stat-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-    .sc-blue::after   { background: linear-gradient(90deg, var(--accent), transparent); }
-    .sc-purple::after { background: linear-gradient(90deg, var(--accent2), transparent); }
-    .sc-teal::after   { background: linear-gradient(90deg, var(--accent3), transparent); }
-    .sc-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 3px; }
-    .sc-val { font-size: 24px; font-weight: 800; font-family: var(--mono); line-height: 1; }
-    .sc-sub { font-size: 9px; color: var(--text-muted); font-family: var(--mono); margin-top: 2px; }
-    .sc-blue .sc-val   { color: var(--accent); }
-    .sc-purple .sc-val { color: var(--accent2); }
-    .sc-teal .sc-val   { color: var(--accent3); }
+/* hint */
+.hint{background:rgba(79,142,247,.06);border:1px solid rgba(79,142,247,.18);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:10px;color:var(--tm);line-height:1.7;margin-bottom:12px}
+.hint strong{color:var(--a)}
 
-    .sec-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); font-family: var(--mono); display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .sec-lbl::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ─── STAMP PANEL ─── */
+.stamp-panel{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.sp-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--s2);border-bottom:1px solid var(--border)}
+.sp-badge{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);display:flex;align-items:center;gap:6px}
+.sp-num{background:rgba(79,142,247,.15);color:var(--a);padding:2px 8px;border-radius:4px;font-weight:700;font-size:10px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--td);transition:background .3s;flex-shrink:0}
+.dot.live{background:var(--ok);box-shadow:0 0 8px var(--ok);animation:blink 1.4s ease infinite}
+.dot.brk{background:var(--a3);box-shadow:0 0 8px var(--a3);animation:blink 1.4s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
-    .mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .mode-btn { padding: 10px 8px; border-radius: 8px; cursor: pointer; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1px; text-align: center; transition: all .2s; border: none; background: var(--surface2); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--border); }
-    .mode-btn:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--border-bright); }
-    .mode-btn.mo-office { background: rgba(79,142,247,0.12); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
-    .mode-btn.mo-home   { background: rgba(124,92,252,0.12); color: var(--accent2); box-shadow: inset 0 0 0 1.5px var(--accent2); }
+/* 2×2 grid */
+.sgrid{display:grid;grid-template-columns:1fr 1fr}
+.scell{padding:14px 12px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;transition:background .2s}
+.scell:nth-child(2){border-right:none}
+.scell:nth-child(3){border-bottom:none}
+.scell:nth-child(4){border-right:none;border-bottom:none}
+.scell.c-active{background:rgba(79,142,247,.05)}
+.scell.c-done{background:rgba(0,229,160,.03)}
+.scell.c-off{opacity:.35}
+.clbl{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.clbl i{font-size:13px}
+.cval{font-family:var(--mono);font-size:20px;font-weight:700;line-height:1;min-height:24px;letter-spacing:1px}
+.cval .mt{color:var(--td);font-size:14px}
+.cval .mstamped{color:var(--ok)}
 
-    input[type="date"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 12px; outline: none; transition: border-color .2s, box-shadow .2s; color-scheme: dark; width: 100%; }
-    input[type="date"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
-    input[type="month"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; outline: none; transition: border-color .2s; color-scheme: dark; width: auto; }
+/* stamp buttons */
+.sbtn{padding:9px 8px;border-radius:8px;border:none;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:5px;width:100%}
+.sbtn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.sb-ti{background:rgba(79,142,247,.14);color:var(--a);box-shadow:inset 0 0 0 1px rgba(79,142,247,.35)}
+.sb-to{background:rgba(124,92,252,.14);color:var(--a2);box-shadow:inset 0 0 0 1px rgba(124,92,252,.35)}
+.sb-bi{background:rgba(0,229,192,.10);color:var(--a3);box-shadow:inset 0 0 0 1px rgba(0,229,192,.3)}
+.sb-bo{background:rgba(255,107,53,.10);color:var(--warn);box-shadow:inset 0 0 0 1px rgba(255,107,53,.3)}
+.sb-ti:not(:disabled):hover{background:rgba(79,142,247,.26);box-shadow:inset 0 0 0 1.5px var(--a),0 0 10px rgba(79,142,247,.2);transform:translateY(-1px)}
+.sb-to:not(:disabled):hover{background:rgba(124,92,252,.26);box-shadow:inset 0 0 0 1.5px var(--a2),0 0 10px rgba(124,92,252,.2);transform:translateY(-1px)}
+.sb-bi:not(:disabled):hover{background:rgba(0,229,192,.2);box-shadow:inset 0 0 0 1.5px var(--a3),0 0 10px rgba(0,229,192,.15);transform:translateY(-1px)}
+.sb-bo:not(:disabled):hover{background:rgba(255,107,53,.2);box-shadow:inset 0 0 0 1.5px var(--warn),0 0 10px rgba(255,107,53,.15);transform:translateY(-1px)}
+.sbtn.stamped{box-shadow:inset 0 0 0 1.5px var(--ok)!important}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
+.dopop{animation:pop .22s ease}
 
-    .today-btn { flex-shrink: 0; padding: 10px 12px; background: var(--surface3); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--accent3); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: all .2s; }
-    .today-btn:hover { background: rgba(0,229,192,0.12); border-color: var(--accent3); }
-    .date-tag { font-family: var(--mono); font-size: 10px; margin-top: 5px; min-height: 16px; }
+/* status bar */
+.spstatus{display:flex;align-items:center;gap:8px;padding:9px 14px;border-top:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--tm);min-height:38px}
+.spstatus span.hi{color:var(--a3);font-weight:700}
 
-    /* ── LIVE SESSION PANEL ── */
-    .live-session-panel {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .lsp-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--surface2);
-      border-bottom: 1px solid var(--border);
-    }
-    .lsp-session-badge {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .lsp-session-num {
-      background: rgba(79,142,247,0.15);
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 700;
-    }
-    .lsp-status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--text-dim);
-      transition: background .3s;
-    }
-    .lsp-status-dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); animation: blinkDot 1.4s ease infinite; }
-    .lsp-status-dot.break  { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); animation: blinkDot 1.4s ease infinite; }
+/* timeline */
+.stl{padding:12px 14px;border-top:1px solid var(--border);background:var(--s2);display:none}
+.stl-hd{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin-bottom:8px}
+.stl-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:7px;background:var(--s3);border:1px solid var(--border);margin-bottom:5px;font-family:var(--mono);font-size:11px}
+.stl-row.open{border-color:rgba(255,107,53,.3);background:rgba(255,107,53,.04)}
+.stl-tot{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:7px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);font-family:var(--mono);font-size:11px;font-weight:700;margin-top:4px}
 
-    /* STAMP GRID — 2x2 */
-    .stamp-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-    }
-    .stamp-cell {
-      padding: 14px 12px;
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
-      transition: background .2s;
-    }
-    .stamp-cell:nth-child(2)  { border-right: none; }
-    .stamp-cell:nth-child(3)  { border-bottom: none; }
-    .stamp-cell:nth-child(4)  { border-right: none; border-bottom: none; }
-    .stamp-cell.cell-done     { background: rgba(0,229,160,0.03); }
-    .stamp-cell.cell-active   { background: rgba(79,142,247,0.05); }
-    .stamp-cell.cell-disabled { opacity: .45; pointer-events: none; }
+/* add session bar */
+.add-bar{padding:10px 14px;border-top:1px solid var(--border);background:var(--s2)}
+.add-btn{width:100%;padding:9px 10px;border-radius:8px;border:1px dashed rgba(79,142,247,.35);background:rgba(79,142,247,.06);color:var(--a);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.add-btn:not(:disabled):hover{background:rgba(79,142,247,.14);border-color:var(--a)}
+.add-btn:disabled{opacity:.35;cursor:not-allowed}
 
-    .cell-label {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .cell-label i { font-size: 13px; }
+/* open manual log btn */
+.ml-open-btn{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,229,192,.3);background:rgba(0,229,192,.06);color:var(--a3);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px}
+.ml-open-btn:hover{background:rgba(0,229,192,.14);border-color:var(--a3)}
 
-    .cell-time-display {
-      font-family: var(--mono);
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1;
-      min-height: 24px;
-      letter-spacing: 1px;
-    }
-    .ctd-empty { color: var(--text-dim); font-size: 14px; }
+/* log table/cards */
+.b-off{background:rgba(79,142,247,.12);color:var(--a);border:1px solid rgba(79,142,247,.25);font-family:var(--mono);font-size:9px;letter-spacing:1px}
+.b-home{background:rgba(124,92,252,.12);color:var(--a2);border:1px solid rgba(124,92,252,.25);font-family:var(--mono);font-size:9px;letter-spacing:1px}
+.b-open{background:rgba(255,107,53,.12);color:var(--warn);border:1px solid rgba(255,107,53,.25);font-family:var(--mono);font-size:9px;letter-spacing:1px}
+.h-hi{color:var(--a3);font-weight:700}.h-md{color:var(--a);font-weight:700}.h-lo{color:var(--warn);font-weight:700}
+.delbtn{background:none;border:none;color:var(--td);cursor:pointer;padding:4px 6px;border-radius:4px;transition:color .15s,background .15s;font-size:14px;line-height:1}
+.delbtn:hover{color:var(--warn);background:rgba(255,107,53,.1)}
+.empty{padding:48px 20px;text-align:center;color:var(--tm);font-family:var(--mono);font-size:12px}
+.empty .ei{font-size:34px;margin-bottom:10px;opacity:.3}
+.logcard{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;animation:ri .22s ease both}
+.logcard.lc-open{border-color:rgba(255,107,53,.3)}
+.lc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.lc-d{font-family:var(--mono);font-size:11px;color:var(--tm)}
+.lc-h{font-family:var(--mono);font-size:18px;font-weight:700;line-height:1}
+.lc-ss{margin-top:8px;border-top:1px solid var(--border);padding-top:8px;display:flex;flex-direction:column;gap:4px}
+.lc-s{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--tm)}
+.lc-s .sh{color:var(--a)}
+@keyframes ri{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-    .stamp-action-btn {
-      padding: 9px 8px;
-      border-radius: 8px;
-      border: none;
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all .18s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      width: 100%;
-    }
-    .sab-in    { background: rgba(79,142,247,0.14);  color: var(--accent);  box-shadow: inset 0 0 0 1px rgba(79,142,247,.35); }
-    .sab-out   { background: rgba(124,92,252,0.14); color: var(--accent2); box-shadow: inset 0 0 0 1px rgba(124,92,252,.35); }
-    .sab-brkin { background: rgba(0,229,192,0.10);  color: var(--accent3); box-shadow: inset 0 0 0 1px rgba(0,229,192,.3); }
-    .sab-brkout{ background: rgba(255,107,53,0.10); color: var(--warn);    box-shadow: inset 0 0 0 1px rgba(255,107,53,.3); }
-    .sab-in:hover    { background: rgba(79,142,247,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent),  0 0 10px rgba(79,142,247,.2); transform: translateY(-1px); }
-    .sab-out:hover   { background: rgba(124,92,252,0.26); box-shadow: inset 0 0 0 1.5px var(--accent2), 0 0 10px rgba(124,92,252,.2); transform: translateY(-1px); }
-    .sab-brkin:hover { background: rgba(0,229,192,0.20);  box-shadow: inset 0 0 0 1.5px var(--accent3), 0 0 10px rgba(0,229,192,.15); transform: translateY(-1px); }
-    .sab-brkout:hover{ background: rgba(255,107,53,0.20); box-shadow: inset 0 0 0 1.5px var(--warn),    0 0 10px rgba(255,107,53,.15); transform: translateY(-1px); }
-    .stamp-action-btn:disabled { opacity: .38; cursor: not-allowed; transform: none !important; }
-    @keyframes sPop { 0%{transform:scale(1)} 45%{transform:scale(1.05)} 100%{transform:scale(1)} }
-    .stamp-action-btn.pulse { animation: sPop .25s ease; }
-    .stamp-action-btn.stamped-state { box-shadow: inset 0 0 0 1.5px var(--success) !important; }
+/* reports */
+.rv{font-family:var(--mono);font-size:32px;font-weight:800;line-height:1}
+.mfrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mfrow label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin:0;white-space:nowrap}
 
-    /* SESSION TIMELINE (saved sessions today) */
-    .session-timeline {
-      padding: 12px 14px;
-      border-top: 1px solid var(--border);
-      background: var(--surface2);
-    }
-    .stl-title {
-      font-family: var(--mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-    .stl-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: 7px;
-      background: var(--surface3);
-      border: 1px solid var(--border);
-      margin-bottom: 5px;
-      font-family: var(--mono);
-      font-size: 11px;
-      animation: rowIn .2s ease both;
-    }
-    .stl-item.stl-open { border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.04); }
-    .stl-times { color: var(--text-muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-    .stl-break-tag { font-size: 9px; color: var(--accent3); background: rgba(0,229,192,0.1); border: 1px solid rgba(0,229,192,0.2); padding: 1px 6px; border-radius: 4px; }
-    .stl-hrs { font-weight: 700; }
-    .stl-total-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: 7px;
-      background: rgba(79,142,247,0.08);
-      border: 1px solid rgba(79,142,247,0.2);
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
+/* MANUAL LOG MODAL */
+.mlo{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:9000;display:none;align-items:flex-end;justify-content:center}
+.mlo.open{display:flex}
+.mls{background:var(--surface);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;padding:20px 18px 36px;animation:sup .3s cubic-bezier(.4,0,.2,1)}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mls-handle{width:40px;height:4px;background:var(--bb);border-radius:99px;margin:0 auto 16px}
+.mls-title{font-size:16px;font-weight:800;margin-bottom:3px}
+.mls-sub{font-size:10px;color:var(--tm);font-family:var(--mono);margin-bottom:18px}
+.ml-block{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.ml-blk-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ml-blk-lbl{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--a)}
+.ml-rm{background:none;border:none;color:var(--td);cursor:pointer;font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;transition:all .15s}
+.ml-rm:hover{color:var(--warn);background:rgba(255,107,53,.1)}
+.mlrow{display:grid;grid-template-columns:1fr 20px 1fr;align-items:end;gap:6px}
+.mlarr{text-align:center;color:var(--td);padding-bottom:30px;font-size:12px}
+.ml-brk{display:flex;align-items:center;gap:7px;cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--tm);padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--s3);transition:all .2s;user-select:none;margin-top:10px;width:fit-content}
+.ml-brk:hover{border-color:var(--bb);color:var(--text)}
+.ml-brk.on{border-color:rgba(0,229,192,.35);color:var(--a3);background:rgba(0,229,192,.07)}
+.ml-addbtn{width:100%;padding:10px;border-radius:8px;border:1px dashed rgba(79,142,247,.3);background:rgba(79,142,247,.05);color:var(--a);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.ml-addbtn:hover{background:rgba(79,142,247,.13);border-color:var(--a)}
+.ml-prev{background:var(--s3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px}
+.ml-prev-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-family:var(--mono);margin-bottom:4px}
+.ml-prev-hrs{font-size:22px;font-weight:700;color:var(--a3);font-family:var(--mono)}
+.ml-prev-sub{font-size:10px;color:var(--tm);font-family:var(--mono);margin-top:2px}
+.ml-savebtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--a),var(--a2));border:none;border-radius:10px;color:#fff;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(79,142,247,.3)}
+.ml-savebtn:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(79,142,247,.4)}
+.ml-savebtn:disabled{opacity:.5;cursor:not-allowed}
 
-    /* ADD SESSION ROW */
-    .add-session-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-top: 1px solid var(--border);
-      background: var(--surface2);
-    }
-    .add-sess-btn {
-      flex: 1;
-      padding: 9px 10px;
-      border-radius: 8px;
-      border: 1px dashed rgba(79,142,247,0.35);
-      background: rgba(79,142,247,0.06);
-      color: var(--accent);
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-    .add-sess-btn:hover { background: rgba(79,142,247,0.14); border-color: var(--accent); }
-    .add-sess-btn:disabled { opacity: .35; cursor: not-allowed; }
+/* toast */
+.twrap{position:fixed;bottom:calc(var(--nav)+10px);right:14px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast2{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:10px;background:var(--s3);border:1px solid var(--bb);font-family:var(--mono);font-size:11px;color:var(--text);box-shadow:0 6px 24px rgba(0,0,0,.5);animation:tin .28s cubic-bezier(.4,0,.2,1) forwards;pointer-events:auto;max-width:min(360px,calc(100vw - 28px))}
+.toast2.ts{border-color:rgba(0,229,160,.3)}.toast2.te{border-color:rgba(255,107,53,.35)}.toast2.tw{border-color:rgba(255,107,53,.35)}.toast2.ti{border-color:rgba(79,142,247,.35)}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ts .tdot{background:var(--ok);box-shadow:0 0 6px var(--ok)}.te .tdot{background:var(--warn);box-shadow:0 0 6px var(--warn)}.tw .tdot{background:var(--warn)}.ti .tdot{background:var(--a);box-shadow:0 0 6px var(--a)}
+@keyframes tin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 
-    /* STATUS BAR */
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 14px;
-      border-top: 1px solid var(--border);
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-muted);
-      min-height: 38px;
-    }
-    .status-bar .sb-msg { flex: 1; }
-    .status-bar .sb-elapsed { color: var(--accent3); font-weight: 700; }
-
-    .tt-div { height: 1px; background: var(--border); margin: 14px 0; }
-
-    /* LOGS */
-    .b-office { background: rgba(79,142,247,0.12); color: var(--accent);  border: 1px solid rgba(79,142,247,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
-    .b-home   { background: rgba(124,92,252,0.12); color: var(--accent2); border: 1px solid rgba(124,92,252,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
-    .b-open   { background: rgba(255,107,53,0.12); color: var(--warn);    border: 1px solid rgba(255,107,53,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
-    .h-hi  { color: var(--accent3); font-weight: 700; }
-    .h-mid { color: var(--accent);  font-weight: 700; }
-    .h-lo  { color: var(--warn);    font-weight: 700; }
-
-    .del-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: color .15s, background .15s; font-size: 14px; line-height: 1; }
-    .del-btn:hover { color: var(--warn); background: rgba(255,107,53,0.1); }
-
-    .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-family: var(--mono); font-size: 12px; }
-    .empty-state .ei { font-size: 34px; margin-bottom: 10px; opacity: .3; }
-
-    .log-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; animation: rowIn .22s ease both; }
-    .log-card.lc-open { border-color: rgba(255,107,53,0.3); }
-    .lc-top  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .lc-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
-    .lc-hrs  { font-family: var(--mono); font-size: 18px; font-weight: 700; line-height: 1; }
-    .lc-row  { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
-    .lc-sub-sessions { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
-    .lc-sub { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
-    .lc-sub .lcs-hrs { color: var(--accent); }
-
-    @keyframes rowIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes blinkDot { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-    .toast-wrap { position: fixed; bottom: calc(var(--bot-nav) + 10px); right: 14px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-    .tt { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; background: var(--surface3); border: 1px solid var(--border-bright); font-family: var(--mono); font-size: 11px; color: var(--text); box-shadow: 0 6px 24px rgba(0,0,0,0.5); animation: ttIn .28s cubic-bezier(.4,0,.2,1) forwards; pointer-events: auto; max-width: min(360px, calc(100vw - 28px)); }
-    .tt.t-success { border-color: rgba(0,229,160,0.3); }
-    .tt.t-error   { border-color: rgba(255,107,53,0.35); }
-    .tt.t-warn    { border-color: rgba(255,107,53,0.35); }
-    .tt.t-info    { border-color: rgba(79,142,247,0.35); }
-    .tt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .t-success .tt-dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
-    .t-error .tt-dot   { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
-    .t-warn .tt-dot    { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
-    .t-info .tt-dot    { background: var(--accent);  box-shadow: 0 0 6px var(--accent); }
-    @keyframes ttIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
-
-    .rpt-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1; }
-    .mf-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .mf-row label { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin:0; white-space:nowrap; }
-
-    /* help hint */
-    .hint-box { background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.18); border-radius: 8px; padding: 10px 12px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
-    .hint-box strong { color: var(--accent); }
-
-    @media (min-width: 992px) { body { padding-bottom: 0; } .bottom-nav { display: none !important; } .tab-page { display: block !important; } .toast-wrap { bottom: 24px; } .app-wrap { padding: 24px 24px 60px; } }
-    @media (max-width: 991px) { .log-table-wrap { display: none !important; } .log-cards-wrap { display: block !important; } }
-    @media (min-width: 992px) { .log-table-wrap { display: block !important; } .log-cards-wrap { display: none !important; } }
-  </style>
+/* responsive */
+@media(min-width:992px){body{padding-bottom:0}.botnav{display:none!important}.page{display:block!important}.twrap{bottom:24px}.wrap{padding:24px 24px 60px}.mlo{align-items:center}.mls{border-radius:16px;max-height:88vh}}
+@media(max-width:991px){.tbl-wrap{display:none!important}.card-wrap{display:block!important}}
+@media(min-width:992px){.tbl-wrap{display:block!important}.card-wrap{display:none!important}}
+</style>
 </head>
 <body>
 
-<nav class="top-nav">
-  <div class="top-nav-inner">
-    <div class="nav-brand">
-      <div class="logo-mark">TT</div>
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="logo">TT</div>
       <div>
-        <div class="brand-name">devOseo · TimeTrack</div>
-        <div class="brand-sub d-none d-sm-block">OJT Session Logger</div>
+        <div class="brand">devOseo · TimeTrack</div>
+        <div style="font-size:9px;color:var(--tm);font-family:var(--mono);letter-spacing:2px;text-transform:uppercase" class="d-none d-sm-block">OJT Session Logger</div>
       </div>
     </div>
-    <div class="text-end">
-      <div class="live-clock-top" id="liveClock">--:--:--</div>
-      <div class="live-date-top d-none d-sm-block" id="liveDate"></div>
+    <div style="text-align:right">
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="clocksub d-none d-sm-block" id="clockdate"></div>
     </div>
   </div>
 </nav>
 
-<div class="app-wrap">
+<!-- DB debug bar — auto-hides on success -->
+<div id="dbg-bar" style="display:none;position:sticky;top:54px;z-index:199;background:rgba(255,107,53,.13);border-bottom:1px solid rgba(255,107,53,.4);padding:8px 16px;font-family:var(--mono);font-size:11px;color:var(--warn);align-items:center;gap:8px;flex-wrap:wrap"></div>
 
-  <!-- ══ DASHBOARD ══ -->
-  <div class="tab-page active" id="tab-dashboard">
-    <div class="card ojt-hero mb-3">
-      <div class="ojt-lbl">OJT Progress</div>
-      <div class="ojt-nums">
-        <span class="ojt-current" id="ojtCurrent">0.00</span>
-        <span class="ojt-slash">/</span><span class="ojt-total">300</span><span class="ojt-unit">hrs</span>
-      </div>
-      <div class="ojt-bar"><div class="ojt-fill" id="ojtFill"></div></div>
-      <div class="ojt-meta"><span id="ojtPct">0% complete</span><span id="ojtRemaining">300 hrs remaining</span></div>
-    </div>
+<div class="wrap">
 
-    <div class="row g-2 mb-3">
-      <div class="col-4"><div class="card stat-card sc-blue h-100"><div class="sc-lbl">Today</div><div class="sc-val" id="todayHours">0.00</div><div class="sc-sub">hours</div></div></div>
-      <div class="col-4"><div class="card stat-card sc-purple h-100"><div class="sc-lbl">Week</div><div class="sc-val" id="weekHours">0.00</div><div class="sc-sub">hours</div></div></div>
-      <div class="col-4"><div class="card stat-card sc-teal h-100"><div class="sc-lbl">Month</div><div class="sc-val" id="monthHours">0.00</div><div class="sc-sub">hours</div></div></div>
+<!-- ══ DASHBOARD ══ -->
+<div class="page on" id="pg-dash">
+  <div class="card ojt mb-3">
+    <div class="ojt-lbl">OJT Progress</div>
+    <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:2px">
+      <span class="ojt-num" id="ojtHrs">0.00</span>
+      <span style="color:var(--td);font-size:20px;font-weight:700;font-family:var(--mono)">/</span>
+      <span style="font-size:20px;font-weight:700;color:var(--td);font-family:var(--mono)">300</span>
+      <span style="font-size:11px;color:var(--tm);font-family:var(--mono)">hrs</span>
     </div>
-
-    <div class="row g-3">
-      <div class="col-lg-4 d-none d-lg-block">
-        <div style="position:sticky;top:70px;" id="desktopFormSlot"></div>
-      </div>
-      <div class="col-12 col-lg-8">
-        <div class="card overflow-hidden">
-          <div class="d-flex align-items-center justify-content-between px-3 py-2" style="border-bottom:1px solid var(--border)">
-            <span class="sec-lbl mb-0" style="flex:1;margin-bottom:0!important">Session Logs</span>
-            <div class="mf-row"><label>Filter</label><input type="month" id="monthPicker" onchange="renderLogs()"></div>
-          </div>
-          <div class="log-table-wrap table-responsive">
-            <table class="table table-hover mb-0">
-              <thead><tr><th>Date</th><th>Mode</th><th>Sessions</th><th>Break</th><th>Total</th><th></th></tr></thead>
-              <tbody id="logBody"><tr><td colspan="6"><div class="empty-state"><div class="ei">📋</div>Loading…</div></td></tr></tbody>
-            </table>
-          </div>
-          <div class="log-cards-wrap p-3" id="logCards"><div class="empty-state"><div class="ei">📋</div>Loading…</div></div>
-        </div>
-      </div>
-    </div>
+    <div class="ojt-bar"><div class="ojt-fill" id="ojtFill"></div></div>
+    <div class="ojt-meta"><span id="ojtPct">0% complete</span><span id="ojtRem">300 hrs remaining</span></div>
   </div>
 
-  <!-- ══ LOG TAB ══ -->
-  <div class="tab-page" id="tab-log"></div>
+  <div class="row g-2 mb-3">
+    <div class="col-4"><div class="card scard sc-b h-100"><div class="sc-lbl">Today</div><div class="sc-val" id="tdH">0.00</div><div class="sc-sub">hours</div></div></div>
+    <div class="col-4"><div class="card scard sc-p h-100"><div class="sc-lbl">Week</div><div class="sc-val" id="wkH">0.00</div><div class="sc-sub">hours</div></div></div>
+    <div class="col-4"><div class="card scard sc-t h-100"><div class="sc-lbl">Month</div><div class="sc-val" id="moH">0.00</div><div class="sc-sub">hours</div></div></div>
+  </div>
 
-  <!-- ══ REPORTS ══ -->
-  <div class="tab-page" id="tab-reports">
-    <div class="sec-lbl mt-1">Reports</div>
-    <div class="row g-3">
-      <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Total OJT Hours</div><div class="rpt-val" style="color:var(--accent)" id="rptTotal">0.00</div><div class="sc-sub mb-2">of 300 hrs required</div><div class="ojt-bar mt-1"><div class="ojt-fill" id="rptFill"></div></div></div></div>
-      <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Daily Average</div><div class="rpt-val" style="color:var(--accent2)" id="rptAvg">0.00</div><div class="sc-sub">hrs per logged day</div></div></div>
-      <div class="col-6 col-sm-3"><div class="card p-3"><div class="sc-lbl mb-2">Days Logged</div><div class="rpt-val" style="color:var(--accent3);font-size:28px" id="rptDays">0</div><div class="sc-sub">unique days</div></div></div>
-      <div class="col-6 col-sm-3"><div class="card p-3"><div class="sc-lbl mb-2">Est. Completion</div><div class="rpt-val" style="color:var(--warn);font-size:20px" id="rptEta">—</div><div class="sc-sub">at current avg</div></div></div>
-      <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Office vs WFH</div><div class="d-flex gap-4 mt-1"><div><div class="sc-lbl" style="color:var(--accent)">OFFICE</div><div class="rpt-val" style="color:var(--accent);font-size:22px" id="rptOffice">0</div><div class="sc-sub">sessions</div></div><div><div class="sc-lbl" style="color:var(--accent2)">WFH</div><div class="rpt-val" style="color:var(--accent2);font-size:22px" id="rptWfh">0</div><div class="sc-sub">sessions</div></div></div></div></div>
-      <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Remaining Hours</div><div class="rpt-val" style="color:var(--warn)" id="rptRemaining">300.00</div><div class="sc-sub">hrs until 300 goal</div></div></div>
+  <div class="row g-3">
+    <div class="col-lg-4 d-none d-lg-block">
+      <div style="position:sticky;top:70px" id="deskSlot"></div>
+    </div>
+    <div class="col-12 col-lg-8">
+      <div class="card overflow-hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+          <div class="slbl" style="margin-bottom:0;flex:1">Session Logs</div>
+          <div class="mfrow">
+            <label>Filter</label>
+            <input type="month" class="finput" id="moPicker" onchange="renderLogs()">
+          </div>
+        </div>
+        <div class="tbl-wrap" style="overflow-x:auto">
+          <table class="table table-hover mb-0">
+            <thead><tr><th>Date</th><th>Mode</th><th>Sessions</th><th>Break</th><th>Total</th><th></th></tr></thead>
+            <tbody id="tblBody"><tr><td colspan="6"><div class="empty"><div class="ei">📋</div>Loading…</div></td></tr></tbody>
+          </table>
+        </div>
+        <div class="card-wrap p-3" id="cardBody"><div class="empty"><div class="ei">📋</div>Loading…</div></div>
+      </div>
     </div>
   </div>
 </div>
 
-<nav class="bottom-nav d-lg-none">
-  <button class="bnav-item active" id="bnav-dashboard" onclick="switchTab('dashboard')"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></button>
-  <button class="bnav-item" id="bnav-log" onclick="switchTab('log')"><i class="bi bi-plus-circle-fill"></i><span>Log</span></button>
-  <button class="bnav-item" id="bnav-reports" onclick="switchTab('reports')"><i class="bi bi-bar-chart-fill"></i><span>Reports</span></button>
+<!-- ══ LOG PAGE ══ -->
+<div class="page" id="pg-log">
+  <!-- form injected here by JS -->
+</div>
+
+<!-- ══ REPORTS ══ -->
+<div class="page" id="pg-rep">
+  <div class="slbl mt-1">Reports</div>
+  <div class="row g-3">
+    <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Total OJT Hours</div><div class="rv" style="color:var(--a)" id="rTotal">0.00</div><div class="sc-sub mb-2">of 300 hrs required</div><div class="ojt-bar mt-1"><div class="ojt-fill" id="rFill"></div></div></div></div>
+    <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Daily Average</div><div class="rv" style="color:var(--a2)" id="rAvg">0.00</div><div class="sc-sub">hrs per logged day</div></div></div>
+    <div class="col-6 col-sm-3"><div class="card p-3"><div class="sc-lbl mb-2">Days Logged</div><div class="rv" style="color:var(--a3);font-size:28px" id="rDays">0</div><div class="sc-sub">unique days</div></div></div>
+    <div class="col-6 col-sm-3"><div class="card p-3"><div class="sc-lbl mb-2">Est. Completion</div><div class="rv" style="color:var(--warn);font-size:20px" id="rEta">—</div><div class="sc-sub">at current avg</div></div></div>
+    <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Office vs WFH</div><div style="display:flex;gap:32px;margin-top:6px"><div><div class="sc-lbl" style="color:var(--a)">OFFICE</div><div class="rv" style="color:var(--a);font-size:22px" id="rOff">0</div><div class="sc-sub">sessions</div></div><div><div class="sc-lbl" style="color:var(--a2)">WFH</div><div class="rv" style="color:var(--a2);font-size:22px" id="rWfh">0</div><div class="sc-sub">sessions</div></div></div></div></div>
+    <div class="col-12 col-sm-6"><div class="card p-3"><div class="sc-lbl mb-2">Remaining Hours</div><div class="rv" style="color:var(--warn)" id="rRem">300.00</div><div class="sc-sub">hrs until 300 goal</div></div></div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- BOTTOM NAV -->
+<nav class="botnav d-lg-none">
+  <button class="bn on" id="bn-dash" onclick="goPage('dash')"><i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></button>
+  <button class="bn" id="bn-log"  onclick="goPage('log')"><i class="bi bi-plus-circle-fill"></i><span>Log</span></button>
+  <button class="bn" id="bn-rep"  onclick="goPage('rep')"><i class="bi bi-bar-chart-fill"></i><span>Reports</span></button>
 </nav>
 
-<div class="toast-wrap" id="toastWrap"></div>
+<div class="twrap" id="twrap"></div>
 
-<!-- ══ FORM TEMPLATE ══ -->
-<template id="formTpl">
-<div class="card" style="overflow:visible;">
-  <div class="card-body pb-3">
-    <div class="sec-lbl">New Session</div>
+<!-- ══ MANUAL LOG MODAL ══ -->
+<div class="mlo" id="mlo" onclick="if(event.target===this)closeMl()">
+  <div class="mls">
+    <div class="mls-handle"></div>
+    <div class="mls-title">📝 Manual Log Entry</div>
+    <div class="mls-sub">Log missed sessions — any past date or today.</div>
 
-    <!-- Date row -->
-    <div class="mb-3">
-      <label class="form-label">📅 Session Date</label>
-      <div class="d-flex gap-2">
-        <input type="date" id="sessionDate" oninput="onDateChange()">
-        <button class="today-btn" onclick="setToday()"><i class="bi bi-calendar-check me-1"></i>TODAY</button>
+    <div style="margin-bottom:12px">
+      <label class="flbl">📅 Date</label>
+      <div style="display:flex;gap:8px">
+        <input type="date" class="finput" id="ml-dt" oninput="mlDtChange()">
+        <button class="todaybtn" onclick="mlSetToday()"><i class="bi bi-calendar-check me-1"></i>TODAY</button>
       </div>
-      <div class="date-tag" id="dateTag"></div>
+      <div class="dtag" id="ml-dtag"></div>
     </div>
 
-    <!-- Mode -->
-    <div class="mb-3">
-      <label class="form-label">Work Mode</label>
-      <div class="mode-toggle">
-        <button class="mode-btn mo-office" id="btnOffice" onclick="setMode('Office')">🏢 OFFICE</button>
-        <button class="mode-btn" id="btnHome" onclick="setMode('Home')">🏠 WFH</button>
+    <div style="margin-bottom:12px">
+      <label class="flbl">Work Mode</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="modebtn m-off" id="ml-bOff" onclick="mlSetMode('Office')">🏢 OFFICE</button>
+        <button class="modebtn" id="ml-bHome" onclick="mlSetMode('Home')">🏠 WFH</button>
       </div>
-      <input type="hidden" id="workMode" value="Office">
     </div>
 
-    <div class="tt-div"></div>
+    <div class="divider"></div>
 
-    <!-- Hint -->
-    <div class="hint-box">
-      <strong>How it works:</strong> Tap <strong>TIME IN</strong> to start — saves instantly.
-      Tap <strong>BREAK IN/OUT</strong> during lunch. Tap <strong>TIME OUT</strong> to complete.
-      Use <strong>+ Add Session</strong> for afternoon shifts — they merge automatically.
+    <div id="ml-blocks"></div>
+    <button class="ml-addbtn" onclick="mlAddBlock()"><i class="bi bi-plus-circle me-1"></i>Add Another Session</button>
+
+    <div class="ml-prev">
+      <div class="ml-prev-lbl">Preview</div>
+      <div class="ml-prev-hrs" id="ml-phrs">-- hrs</div>
+      <div class="ml-prev-sub" id="ml-psub">Enter times above</div>
     </div>
 
-    <!-- Live session panel -->
-    <div class="live-session-panel" id="liveSessionPanel">
-      <div class="lsp-header">
-        <div class="lsp-session-badge">
-          <span class="lsp-session-num" id="lspSessionNum">SESSION 1</span>
-          <span id="lspStatusText">Not started</span>
+    <button class="ml-savebtn" id="ml-sbtn" onclick="mlSave()"><i class="bi bi-check2-circle me-2"></i>SAVE LOG ENTRY</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ─────────────────────────────────────────
+   SUPABASE  — replace key with your real anon key if needed
+───────────────────────────────────────── */
+const SB_URL  = 'https://mzeuxrkqwpanidpijbwk.supabase.co';
+// ⚠️  PASTE YOUR REAL anon/public key below (starts with eyJ...)
+// Found in Supabase Dashboard → Settings → API → anon public
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16ZXV4cmtxd3BhbmlkcGlqYndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NjA2MzksImV4cCI6MjA4ODIzNjYzOX0.n1RAA3seBZFK6Na0ujHTi03s72YKRALBlh-s0ATvePs';
+const { createClient } = supabase;
+const db = createClient(SB_URL, SB_KEY);
+
+// ── DB connection test on load ──
+(async()=>{
+  const dbg = document.getElementById('dbg-bar');
+  try {
+    const {data,error} = await db.from('logs').select('id').limit(1);
+    if(error) {
+      if(dbg) { dbg.style.display='flex'; dbg.innerHTML=`<b>❌ DB ERROR:</b>&nbsp;${error.message} &nbsp;|&nbsp; Check your Supabase anon key (Settings → API → anon public)`; }
+      console.error('Supabase error:', error);
+    } else {
+      if(dbg) { dbg.style.display='flex'; dbg.style.background='rgba(0,229,160,.12)'; dbg.style.borderColor='rgba(0,229,160,.3)'; dbg.style.color='var(--ok)'; dbg.textContent='✅ Database connected'; setTimeout(()=>{dbg.style.display='none';},3000); }
+      console.log('Supabase OK, rows sampled:', data?.length);
+    }
+  } catch(e) {
+    if(dbg) { dbg.style.display='flex'; dbg.innerHTML=`<b>❌ JS ERROR:</b>&nbsp;${e.message}`; }
+    console.error('Supabase JS error:', e);
+  }
+})();
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let allLogs = [];
+let mode    = 'Office';   // live form mode
+let rec     = null;       // active DB row for selected date
+let sidx    = 0;          // session index being edited
+let etimer  = null;       // elapsed interval
+
+let mlMode   = 'Office';
+let mlBlocks = [];        // [{ti,to,bi,bo,brkOn}]
+
+/* ─────────────────────────────────────────
+   UTILS
+───────────────────────────────────────── */
+const pad  = v => String(v).padStart(2,'0');
+const $    = id => document.getElementById(id);
+const $$   = q  => document.querySelector(q);
+
+function todayISO(){
+  const n=new Date();
+  return `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;
+}
+// "2025-03-15" → "Mar 15, 2025"
+function dateStr(iso){
+  return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
+}
+// given dateVal (YYYY-MM-DD) + HH:MM string → ISO
+function toISO(dateVal,hhmm){
+  if(!dateVal||!hhmm) return null;
+  return new Date(`${dateVal}T${hhmm}:00`).toISOString();
+}
+// current local time as ISO on a given dateVal
+function nowOnDate(dateVal){
+  const n=new Date();
+  return new Date(`${dateVal}T${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`).toISOString();
+}
+function fmt(iso){
+  if(!iso) return '—';
+  return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+function hhmmnow(){const n=new Date();return`${pad(n.getHours())}:${pad(n.getMinutes())}`;}
+function hrs(ti,to,bi,bo){
+  if(!ti||!to) return 0;
+  let h=(new Date(to)-new Date(ti))/3600000;
+  if(bi&&bo) h-=(new Date(bo)-new Date(bi))/3600000;
+  return Math.max(0,h);
+}
+
+/* ─────────────────────────────────────────
+   CLOCK
+───────────────────────────────────────── */
+(function tick(){
+  const n=new Date();
+  $('clock').textContent = n.toLocaleTimeString('en-US',{hour12:false});
+  const cd=$('clockdate'); if(cd) cd.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  setTimeout(tick,1000);
+})();
+
+/* ─────────────────────────────────────────
+   PAGE NAVIGATION
+───────────────────────────────────────── */
+function goPage(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
+  $('pg-'+pg).classList.add('on');
+  $('bn-'+pg)?.classList.add('on');
+  if(pg==='log') buildForm('pg-log');
+  if(pg==='rep') renderReports();
+  window.scrollTo(0,0);
+}
+
+/* ─────────────────────────────────────────
+   BUILD LIVE FORM  (no template, direct innerHTML)
+───────────────────────────────────────── */
+function buildForm(slotId){
+  const slot = $(slotId);
+  if(!slot) return;
+  slot.innerHTML = `
+<div class="card">
+  <div style="padding:18px 16px 20px">
+    <div class="slbl">Live Session</div>
+
+    <!-- date -->
+    <div style="margin-bottom:12px">
+      <label class="flbl">📅 Session Date</label>
+      <div style="display:flex;gap:8px">
+        <input type="date" class="finput" id="fDate" oninput="onDateChange()">
+        <button class="todaybtn" onclick="setToday()"><i class="bi bi-calendar-check me-1"></i>TODAY</button>
+      </div>
+      <div class="dtag" id="fDtag"></div>
+    </div>
+
+    <!-- mode -->
+    <div style="margin-bottom:12px">
+      <label class="flbl">Work Mode</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="modebtn m-off" id="fBOff"  onclick="setMode('Office')">🏢 OFFICE</button>
+        <button class="modebtn"       id="fBHome" onclick="setMode('Home')">🏠 WFH</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="hint">
+      <strong>Tap TIME IN</strong> — saves to DB immediately.
+      Add <strong>BREAK IN/OUT</strong> for lunch.
+      <strong>TIME OUT</strong> closes the session.
+      <strong>+ Add Session</strong> starts a 2nd shift on the same day.
+    </div>
+
+    <!-- stamp panel -->
+    <div class="stamp-panel">
+      <div class="sp-head">
+        <div class="sp-badge">
+          <span class="sp-num" id="spNum">SESSION 1</span>
+          <span id="spStatus" style="font-size:9px">Not started</span>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div class="lsp-status-dot" id="lspDot"></div>
-          <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted)" id="lspElapsed"></span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="dot" id="spDot"></div>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--tm)" id="spElapsed"></span>
         </div>
       </div>
 
-      <!-- 2x2 Stamp Grid -->
-      <div class="stamp-grid">
+      <div class="sgrid">
         <!-- TIME IN -->
-        <div class="stamp-cell cell-active" id="cell-timein">
-          <div class="cell-label" style="color:var(--accent)"><i class="bi bi-box-arrow-in-right"></i> Time In</div>
-          <div class="cell-time-display" id="disp-timein"><span class="ctd-empty">--:--</span></div>
-          <button class="stamp-action-btn sab-in" id="btn-timein" onclick="stampField('timein')">
-            <i class="bi bi-play-fill"></i> STAMP IN
-          </button>
+        <div class="scell c-active" id="c-ti">
+          <div class="clbl" style="color:var(--a)"><i class="bi bi-box-arrow-in-right"></i>Time In</div>
+          <div class="cval" id="v-ti"><span class="mt">--:--</span></div>
+          <button class="sbtn sb-ti" id="b-ti"><i class="bi bi-play-fill"></i>STAMP IN</button>
         </div>
         <!-- TIME OUT -->
-        <div class="stamp-cell cell-disabled" id="cell-timeout">
-          <div class="cell-label" style="color:var(--accent2)"><i class="bi bi-box-arrow-right"></i> Time Out</div>
-          <div class="cell-time-display" id="disp-timeout"><span class="ctd-empty">--:--</span></div>
-          <button class="stamp-action-btn sab-out" id="btn-timeout" onclick="stampField('timeout')" disabled>
-            <i class="bi bi-stop-fill"></i> STAMP OUT
-          </button>
+        <div class="scell c-off" id="c-to">
+          <div class="clbl" style="color:var(--a2)"><i class="bi bi-box-arrow-right"></i>Time Out</div>
+          <div class="cval" id="v-to"><span class="mt">--:--</span></div>
+          <button class="sbtn sb-to" id="b-to" disabled><i class="bi bi-stop-fill"></i>STAMP OUT</button>
         </div>
         <!-- BREAK IN -->
-        <div class="stamp-cell cell-disabled" id="cell-breakin">
-          <div class="cell-label" style="color:var(--accent3)"><i class="bi bi-cup-hot"></i> Break In</div>
-          <div class="cell-time-display" id="disp-breakin"><span class="ctd-empty">--:--</span></div>
-          <button class="stamp-action-btn sab-brkin" id="btn-breakin" onclick="stampField('breakin')" disabled>
-            <i class="bi bi-pause-fill"></i> BREAK IN
-          </button>
+        <div class="scell c-off" id="c-bi">
+          <div class="clbl" style="color:var(--a3)"><i class="bi bi-cup-hot"></i>Break In</div>
+          <div class="cval" id="v-bi"><span class="mt">--:--</span></div>
+          <button class="sbtn sb-bi" id="b-bi" disabled><i class="bi bi-pause-fill"></i>BREAK IN</button>
         </div>
         <!-- BREAK OUT -->
-        <div class="stamp-cell cell-disabled" id="cell-breakout">
-          <div class="cell-label" style="color:var(--warn)"><i class="bi bi-arrow-return-right"></i> Break Out</div>
-          <div class="cell-time-display" id="disp-breakout"><span class="ctd-empty">--:--</span></div>
-          <button class="stamp-action-btn sab-brkout" id="btn-breakout" onclick="stampField('breakout')" disabled>
-            <i class="bi bi-play-circle"></i> BREAK OUT
-          </button>
+        <div class="scell c-off" id="c-bo">
+          <div class="clbl" style="color:var(--warn)"><i class="bi bi-arrow-return-right"></i>Break Out</div>
+          <div class="cval" id="v-bo"><span class="mt">--:--</span></div>
+          <button class="sbtn sb-bo" id="b-bo" disabled><i class="bi bi-play-circle"></i>BREAK OUT</button>
         </div>
       </div>
 
-      <!-- Status bar -->
-      <div class="status-bar">
-        <div class="lsp-status-dot" id="sbDot"></div>
-        <div class="sb-msg" id="sbMsg">Select a date and tap TIME IN to start</div>
+      <div class="spstatus">
+        <div class="dot" id="sbDot"></div>
+        <span id="sbMsg" style="flex:1">Select a date and tap TIME IN</span>
       </div>
 
-      <!-- Session timeline -->
-      <div class="session-timeline" id="sessionTimeline" style="display:none;">
-        <div class="stl-title">Today's Sessions</div>
-        <div id="sessionTimelineList"></div>
+      <div class="stl" id="stl">
+        <div class="stl-hd">Today's Sessions</div>
+        <div id="stl-list"></div>
       </div>
 
-      <!-- Add session row -->
-      <div class="add-session-bar">
-        <button class="add-sess-btn" id="addSessionBtn" onclick="addNewSession()" disabled>
-          <i class="bi bi-plus-lg"></i> Add Another Session
+      <div class="add-bar">
+        <button class="add-btn" id="addBtn" disabled>
+          <i class="bi bi-plus-lg"></i>Add Another Session
         </button>
       </div>
     </div>
 
+    <button class="ml-open-btn" onclick="openMl()">
+      <i class="bi bi-pencil-square"></i>Log Missed / Past Session Manually
+    </button>
   </div>
-</div>
-</template>
+</div>`;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const { createClient } = supabase;
-const db = createClient(
-  "https://mzeuxrkqwpanidpijbwk.supabase.co",
-  "sb_publishable_x1zmt6S6U7_p_pWDjsVh3w_tfe7iWzw"
-);
+  /* attach listeners after DOM is built */
+  $('b-ti').addEventListener('click', ()=>stamp('ti'));
+  $('b-to').addEventListener('click', ()=>stamp('to'));
+  $('b-bi').addEventListener('click', ()=>stamp('bi'));
+  $('b-bo').addEventListener('click', ()=>stamp('bo'));
+  $('addBtn').addEventListener('click', addSession);
 
-/* ══ STATE ══ */
-let allLogs     = [];
-let currentMode = 'Office';
-
-/*
-  activeDayRecord = null | { id, date, mode, sessions:[], total_hours }
-  Each session in sessions = { time_in, time_out, break_in, break_out, hours, partial }
-    partial = true  → time_out not yet stamped
-*/
-let activeDayRecord  = null;
-let activeSessionIdx = 0;   // which session in sessions[] we're currently editing
-let elapsedTimer     = null;
-
-/* ══ CLOCK ══ */
-function tickClock() {
-  const n = new Date();
-  document.getElementById('liveClock').textContent = n.toLocaleTimeString('en-US',{hour12:false});
-  const de = document.getElementById('liveDate');
-  if (de) de.textContent = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-}
-tickClock(); setInterval(tickClock, 1000);
-
-/* ══ DATE HELPERS ══ */
-function todayISO() {
-  const n = new Date();
-  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
-}
-function isoToDateStr(iso) {
-  return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-}
-function nowISO(dateVal) {
-  const n = new Date();
-  const d = new Date(dateVal+'T00:00:00');
-  d.setHours(n.getHours(), n.getMinutes(), n.getSeconds(), 0);
-  return d.toISOString();
-}
-function fmtTime(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-}
-function hhmm() {
-  const n = new Date();
-  return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  setMode(mode);          // restore mode buttons
+  $('fDate').value = todayISO();
+  onDateChange();         // load today's record
 }
 
-/* ══ FORM INJECT ══ */
-function injectForm(slotId) {
-  const slot = document.getElementById(slotId);
-  if (!slot) return;
-  slot.innerHTML = '';
-  slot.appendChild(document.getElementById('formTpl').content.cloneNode(true));
-  setMode(currentMode);
-  const d = document.getElementById('sessionDate');
-  if (d) { d.value = todayISO(); }
-  onDateChange();
-}
+/* ─────────────────────────────────────────
+   DATE CHANGE
+───────────────────────────────────────── */
+async function onDateChange(){
+  stopTimer();
+  rec=null; sidx=0;
+  const el=$('fDate'); const tag=$('fDtag');
+  if(!el||!tag) return;
+  const val=el.value;
+  if(!val){tag.innerHTML='';redraw();return;}
 
-/* ══ DATE CHANGE → load existing day record ══ */
-async function onDateChange() {
-  clearElapsedTimer();
-  activeDayRecord  = null;
-  activeSessionIdx = 0;
+  const diff=Math.round((new Date().setHours(0,0,0,0)-new Date(val+'T00:00:00'))/86400000);
+  tag.innerHTML = diff===0
+    ? '<span style="color:var(--a3)">✓ Today</span>'
+    : diff>0 ? `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`
+             : '<span style="color:var(--warn)">⚠ Future date</span>';
 
-  const el  = document.getElementById('sessionDate');
-  const tag = document.getElementById('dateTag');
-  if (!el || !tag) return;
-  const val = el.value;
-  if (!val) { tag.textContent=''; refreshStampUI(); return; }
-
-  const picked = new Date(val+'T00:00:00');
-  const todayM = new Date(); todayM.setHours(0,0,0,0);
-  const diff   = Math.round((todayM - picked) / 86400000);
-  if      (diff === 0) tag.innerHTML = '<span style="color:var(--accent3)">✓ Today</span>';
-  else if (diff  >  0) tag.innerHTML = `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`;
-  else                 tag.innerHTML = '<span style="color:var(--warn)">⚠ Future date</span>';
-
-  // Load existing record for this date
-  const dateStr = isoToDateStr(val);
-  const { data } = await db.from('logs').select('*').eq('date', dateStr);
-  if (data && data.length) {
-    activeDayRecord  = data[0];
-    // find last session (partial or complete — we append after all complete ones)
-    const sessions   = activeDayRecord.sessions || [];
-    const partialIdx = sessions.findIndex(s => s.partial);
-    activeSessionIdx = partialIdx >= 0 ? partialIdx : sessions.length; // point to next slot
+  const ds = dateStr(val);
+  const {data,error} = await db.from('logs').select('*').eq('date',ds);
+  if(error){ toast('DB: '+error.message,'e'); }
+  if(data && data.length){
+    rec = data[0];
+    const ss = rec.sessions||[];
+    const oi = ss.findIndex(s=>!s.time_out||s.partial);
+    sidx = oi>=0 ? oi : ss.length;
   }
-  refreshStampUI();
-  renderSessionTimeline();
+  redraw();
+  redrawTimeline();
 }
 
-function setToday() {
-  const el = document.getElementById('sessionDate');
-  if (el) { el.value = todayISO(); onDateChange(); }
+function setToday(){
+  const el=$('fDate'); if(el){el.value=todayISO();onDateChange();}
 }
 
-/* ══ MODE ══ */
-function setMode(m) {
-  currentMode = m;
-  const wm = document.getElementById('workMode'); if (wm) wm.value = m;
-  const bo = document.getElementById('btnOffice'); if (bo) bo.className = 'mode-btn' + (m==='Office' ? ' mo-office' : '');
-  const bh = document.getElementById('btnHome');   if (bh) bh.className = 'mode-btn' + (m==='Home'   ? ' mo-home'  : '');
+function setMode(m){
+  mode=m;
+  const bo=$('fBOff'); const bh=$('fBHome');
+  if(bo) bo.className='modebtn'+(m==='Office'?' m-off':'');
+  if(bh) bh.className='modebtn'+(m==='Home'?' m-home':'');
 }
 
-/* ══ REFRESH STAMP UI ══ */
-/*
-  Derive which buttons are enabled / which cells are "done/active/disabled"
-  based on activeDayRecord and activeSessionIdx
-*/
-function refreshStampUI() {
-  const sessions      = activeDayRecord?.sessions || [];
-  const curSession    = sessions[activeSessionIdx] || null;  // may be null (new session)
-  const hasTimein     = !!curSession?.time_in;
-  const hasTimeout    = !!curSession?.time_out;
-  const hasBreakIn    = !!curSession?.break_in;
-  const hasBreakOut   = !!curSession?.break_out;
-  const isPartial     = hasTimein && !hasTimeout;
+/* ─────────────────────────────────────────
+   REDRAW STAMP UI  — pure derivation from rec+sidx
+───────────────────────────────────────── */
+function redraw(){
+  const ss  = rec?.sessions||[];
+  const cur = sidx<ss.length ? ss[sidx] : null;
+  const HI  = !!(cur?.time_in);
+  const HO  = !!(cur?.time_out);
+  const HBI = !!(cur?.break_in);
+  const HBO = !!(cur?.break_out);
+  const LIVE= HI&&!HO;
 
-  // session num label
-  const numEl = document.getElementById('lspSessionNum');
-  if (numEl) numEl.textContent = `SESSION ${activeSessionIdx + 1}`;
+  /* session number label */
+  const numEl=$('spNum'); if(numEl) numEl.textContent=`SESSION ${sidx+1}`;
 
-  const dot = document.getElementById('lspDot');
-  const statusText = document.getElementById('lspStatusText');
-  const sbDot = document.getElementById('sbDot');
-  const sbMsg = document.getElementById('sbMsg');
+  /* cells */
+  setCell('ti', HI?'done':'active', HI, HI);
+  setCell('to', HO?'done':LIVE?'active':'off', HO, !LIVE||HO);
+  setCell('bi', HBI?'done':LIVE&&!HBI?'active':'off', HBI, !(LIVE&&!HBI));
+  setCell('bo', HBO?'done':HBI&&!HBO&&LIVE?'active':'off', HBO, !(HBI&&!HBO&&LIVE));
 
-  // ── Time In cell ──
-  setCellState('timein',
-    hasTimein ? 'done' : 'active',
-    hasTimein,   // stamped look
-    hasTimein    // disable further stamping
-  );
-  setDisp('timein', hasTimein ? fmtTime(curSession.time_in) : null);
+  /* values */
+  setVal('ti', HI  ? fmt(cur.time_in)  : null);
+  setVal('to', HO  ? fmt(cur.time_out) : null);
+  setVal('bi', HBI ? fmt(cur.break_in) : null);
+  setVal('bo', HBO ? fmt(cur.break_out): null);
 
-  // ── Time Out cell ──
-  setCellState('timeout',
-    hasTimeout ? 'done' : (isPartial ? 'active' : 'disabled'),
-    hasTimeout,
-    hasTimeout || !isPartial
-  );
-  setDisp('timeout', hasTimeout ? fmtTime(curSession.time_out) : null);
+  /* dots + message */
+  const spd=$('spDot'), sbd=$('sbDot'), sst=$('spStatus'), smg=$('sbMsg');
+  const setDot=(el,c)=>{if(el)el.className='dot'+(c?' '+c:'');};
 
-  // ── Break In cell ──
-  setCellState('breakin',
-    hasBreakIn ? 'done' : (isPartial && !hasBreakIn ? 'active' : 'disabled'),
-    hasBreakIn,
-    hasBreakIn || !isPartial || hasTimeout
-  );
-  setDisp('breakin', hasBreakIn ? fmtTime(curSession.break_in) : null);
-
-  // ── Break Out cell ──
-  setCellState('breakout',
-    hasBreakOut ? 'done' : (hasBreakIn && !hasBreakOut ? 'active' : 'disabled'),
-    hasBreakOut,
-    hasBreakOut || !hasBreakIn || hasTimeout
-  );
-  setDisp('breakout', hasBreakOut ? fmtTime(curSession.break_out) : null);
-
-  // ── Status dot + message ──
-  if (!hasTimein) {
-    if (dot)        { dot.className='lsp-status-dot'; }
-    if (statusText) statusText.textContent = sessions.length > 0 ? 'New session ready' : 'Not started';
-    if (sbDot)      sbDot.className='lsp-status-dot';
-    if (sbMsg)      sbMsg.textContent = document.getElementById('sessionDate')?.value ? 'Tap TIME IN to start the session' : 'Select a date first';
-  } else if (isPartial && hasBreakIn && !hasBreakOut) {
-    if (dot)        { dot.className='lsp-status-dot break'; }
-    if (statusText) statusText.textContent = 'On break';
-    if (sbDot)      sbDot.className='lsp-status-dot break';
-    if (sbMsg)      sbMsg.innerHTML = `On break since <span class="sb-elapsed">${fmtTime(curSession.break_in)}</span> — tap BREAK OUT to resume`;
-  } else if (isPartial) {
-    if (dot)        { dot.className='lsp-status-dot active'; }
-    if (statusText) statusText.textContent = 'In progress';
-    if (sbDot)      sbDot.className='lsp-status-dot active';
-    startElapsedTimer(curSession.time_in);
-    if (sbMsg)      sbMsg.innerHTML = `Clocked in at <span class="sb-elapsed">${fmtTime(curSession.time_in)}</span>`;
-  } else if (hasTimeout) {
-    if (dot)        { dot.className='lsp-status-dot'; }
-    if (statusText) statusText.textContent = 'Session complete';
-    if (sbDot)      sbDot.className='lsp-status-dot';
-    if (sbMsg)      sbMsg.textContent = `Session ${activeSessionIdx+1} complete · ${calcSessionHours(curSession).toFixed(2)} hrs`;
+  if(!HI){
+    setDot(spd,''); setDot(sbd,'');
+    if(sst) sst.textContent = ss.length>0?'New session ready':'Not started';
+    if(smg) smg.innerHTML   = $('fDate')?.value ? 'Tap <strong>TIME IN</strong> to start' : 'Select a date first';
+    stopTimer();
+  } else if(LIVE&&HBI&&!HBO){
+    setDot(spd,'brk'); setDot(sbd,'brk');
+    if(sst) sst.textContent='On break';
+    if(smg) smg.innerHTML=`On break since <span class="hi">${fmt(cur.break_in)}</span> — tap BREAK OUT`;
+    stopTimer();
+  } else if(LIVE){
+    setDot(spd,'live'); setDot(sbd,'live');
+    if(sst) sst.textContent='In progress';
+    if(smg) smg.innerHTML=`Clocked in at <span class="hi">${fmt(cur.time_in)}</span>`;
+    startTimer(cur.time_in);
+  } else if(HO){
+    setDot(spd,''); setDot(sbd,'');
+    if(sst) sst.textContent='Session complete';
+    const h=hrs(cur.time_in,cur.time_out,cur.break_in,cur.break_out);
+    if(smg) smg.textContent=`Session ${sidx+1} complete · ${h.toFixed(2)} hrs`;
+    stopTimer();
   }
 
-  // ── Add Session btn ──
-  const addBtn = document.getElementById('addSessionBtn');
-  if (addBtn) {
-    // Enable if the current session is complete (has time_out) or if there are past complete sessions and no current open one
-    const allComplete = sessions.every(s => !s.partial && s.time_out);
-    addBtn.disabled = !(hasTimeout || (allComplete && sessions.length > 0));
-  }
+  /* add session button */
+  const ab=$('addBtn'); if(ab) ab.disabled=!HO;
 }
 
-function setCellState(field, state, stamped, disabledBtn) {
-  const cell = document.getElementById(`cell-${field}`);
-  const btn  = document.getElementById(`btn-${field}`);
-  if (!cell || !btn) return;
-  cell.className = `stamp-cell cell-${state}`;
-  btn.disabled = !!disabledBtn;
-  if (stamped) btn.classList.add('stamped-state');
-  else         btn.classList.remove('stamped-state');
+function setCell(id,state,stamped,dis){
+  const c=$(`c-${id}`); const b=$(`b-${id}`);
+  if(c) c.className='scell c-'+state;
+  if(b){ b.disabled=!!dis; if(stamped) b.classList.add('stamped'); else b.classList.remove('stamped'); }
+}
+function setVal(id,t){
+  const el=$(`v-${id}`); if(!el) return;
+  el.innerHTML = t ? `<span class="mstamped">${t}</span>` : `<span class="mt">--:--</span>`;
 }
 
-function setDisp(field, timeStr) {
-  const el = document.getElementById(`disp-${field}`);
-  if (!el) return;
-  if (timeStr) {
-    el.innerHTML = `<span style="color:var(--success)">${timeStr}</span>`;
-  } else {
-    el.innerHTML = `<span class="ctd-empty">--:--</span>`;
-  }
+/* ─────────────────────────────────────────
+   TIMER
+───────────────────────────────────────── */
+function startTimer(iso){
+  stopTimer();
+  const el=$('spElapsed'); if(!el) return;
+  const fn=()=>{
+    const s=Math.floor((Date.now()-new Date(iso))/1000);
+    el.textContent=`${pad(Math.floor(s/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`;
+  };
+  fn(); etimer=setInterval(fn,1000);
+}
+function stopTimer(){
+  if(etimer){clearInterval(etimer);etimer=null;}
+  const el=$('spElapsed'); if(el) el.textContent='';
 }
 
-/* ══ ELAPSED TIMER ══ */
-function startElapsedTimer(timeInISO) {
-  clearElapsedTimer();
-  const el = document.getElementById('lspElapsed');
-  if (!el) return;
-  function tick() {
-    const diff = Math.floor((Date.now() - new Date(timeInISO)) / 1000);
-    const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
-    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-  tick();
-  elapsedTimer = setInterval(tick, 1000);
-}
-function clearElapsedTimer() {
-  if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
-  const el = document.getElementById('lspElapsed');
-  if (el) el.textContent = '';
-}
+/* ─────────────────────────────────────────
+   STAMP  — the core handler
+───────────────────────────────────────── */
+async function stamp(field){
+  const dateEl=$('fDate');
+  if(!dateEl?.value){ toast('Select a date first','e'); return; }
+  const dv  = dateEl.value;
+  const ds  = dateStr(dv);
+  const now = nowOnDate(dv);
+  const hm  = hhmmnow();
 
-/* ══ CORE STAMP FUNCTION ══ */
-async function stampField(field) {
-  const dateVal = document.getElementById('sessionDate')?.value;
-  if (!dateVal) { toast('Select a date first', 'error'); return; }
+  /* button pop */
+  const btn=$(`b-${field}`);
+  if(btn){ btn.disabled=true; btn.classList.add('dopop'); setTimeout(()=>btn.classList.remove('dopop'),280); }
 
-  const btn = document.getElementById(`btn-${field}`);
-  if (btn) { btn.disabled = true; btn.classList.add('pulse'); setTimeout(()=>btn.classList.remove('pulse'), 280); }
-
-  const nowIso  = nowISO(dateVal);
-  const dateStr = isoToDateStr(dateVal);
-  const timeStr = hhmm();
-
-  // ── TIME IN ──
-  if (field === 'timein') {
-    await _stampTimeIn(dateStr, dateVal, nowIso, timeStr);
+  /* ── TIME IN ── */
+  if(field==='ti'){
+    const slot={time_in:now,time_out:null,break_in:null,break_out:null,hours:0,partial:true};
+    if(rec){
+      /* append to existing record */
+      const ss=clone(rec.sessions||[]);
+      if(ss.some(s=>!s.time_out||s.partial)){
+        toast('Close the current open session first (stamp TIME OUT)','w');
+        redraw(); return;
+      }
+      sidx=ss.length;
+      ss.push(slot);
+      await save(ss,ds);
+      toast(`⏱ Time In · ${hm} · Session ${sidx+1}`,'s');
+    } else {
+      /* new record */
+      const{data,error}=await db.from('logs').insert({
+        date:ds, mode:mode,
+        time_in:now, time_out:null, lunch_in:null, lunch_out:null,
+        total_hours:0, sessions:[slot], status:'partial'
+      }).select();
+      if(error){ toast('DB error: '+error.message,'e'); redraw(); return; }
+      rec=data[0]; sidx=0;
+      toast(`⏱ Time In · ${hm} · Session started!`,'s');
+      await renderLogs();
+      redraw();
+      redrawTimeline();
+    }
     return;
   }
 
-  // All other stamps require an active (partial) session
-  if (!activeDayRecord) { toast('No active session — stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
-  const sessions   = [...(activeDayRecord.sessions || [])];
-  const curSession = sessions[activeSessionIdx];
-  if (!curSession) { toast('Session not found', 'error'); if(btn) btn.disabled=false; return; }
+  /* ── all other fields need an existing open session ── */
+  if(!rec){ toast('Stamp TIME IN first','e'); redraw(); return; }
+  const ss=clone(rec.sessions||[]);
+  const cur=ss[sidx];
+  if(!cur){ toast('Session slot not found','e'); redraw(); return; }
 
-  if (field === 'breakin') {
-    if (!curSession.time_in)  { toast('Stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
-    if (curSession.break_in)  { toast('Break already started', 'warn'); if(btn) btn.disabled=false; return; }
-    sessions[activeSessionIdx] = { ...curSession, break_in: nowIso };
-    toast(`☕ Break In · ${timeStr}`, 'info');
-  } else if (field === 'breakout') {
-    if (!curSession.break_in) { toast('Stamp Break In first', 'error'); if(btn) btn.disabled=false; return; }
-    if (curSession.break_out) { toast('Break already ended', 'warn'); if(btn) btn.disabled=false; return; }
-    sessions[activeSessionIdx] = { ...curSession, break_out: nowIso };
-    toast(`🔄 Break Out · ${timeStr} — back to work!`, 'success');
-  } else if (field === 'timeout') {
-    if (!curSession.time_in)  { toast('Stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
-    if (curSession.time_out)  { toast('Already clocked out', 'warn'); if(btn) btn.disabled=false; return; }
-    const h = calcSessionHoursFromTimes(curSession.time_in, nowIso, curSession.break_in, curSession.break_out);
-    if (h <= 0) { toast('Time Out must be after Time In', 'error'); if(btn) btn.disabled=false; return; }
-    sessions[activeSessionIdx] = { ...curSession, time_out: nowIso, hours: parseFloat(h.toFixed(2)), partial: false };
-    clearElapsedTimer();
-    toast(`✅ Time Out · ${timeStr} · ${h.toFixed(2)} hrs logged`, 'success');
+  if(field==='bi'){
+    if(!cur.time_in){ toast('Stamp TIME IN first','e'); redraw(); return; }
+    if(cur.break_in){ toast('Break already started','w'); redraw(); return; }
+    cur.break_in=now; ss[sidx]=cur;
+    toast(`☕ Break In · ${hm}`,'i');
+
+  } else if(field==='bo'){
+    if(!cur.break_in){ toast('Stamp BREAK IN first','e'); redraw(); return; }
+    if(cur.break_out){ toast('Break already ended','w'); redraw(); return; }
+    cur.break_out=now; ss[sidx]=cur;
+    toast(`🔄 Break Out · ${hm} — back to work!`,'s');
+
+  } else if(field==='to'){
+    if(!cur.time_in){ toast('Stamp TIME IN first','e'); redraw(); return; }
+    if(cur.time_out){ toast('Already clocked out','w'); redraw(); return; }
+    const h=hrs(cur.time_in,now,cur.break_in,cur.break_out);
+    if(h<=0){ toast('TIME OUT must be after TIME IN','e'); redraw(); return; }
+    cur.time_out=now; cur.hours=parseFloat(h.toFixed(2)); cur.partial=false;
+    ss[sidx]=cur;
+    stopTimer();
+    toast(`✅ Time Out · ${hm} · ${h.toFixed(2)} hrs logged`,'s');
   }
 
-  await _persistUpdate(sessions, dateStr, dateVal);
+  await save(ss,ds);
 }
 
-/* ══ STAMP TIME IN ══ */
-async function _stampTimeIn(dateStr, dateVal, nowIso, timeStr) {
-  const newSession = { time_in: nowIso, time_out: null, break_in: null, break_out: null, hours: 0, partial: true };
+/* ─────────────────────────────────────────
+   SAVE (update existing record)
+───────────────────────────────────────── */
+async function save(ss,ds){
+  const done   = ss.filter(s=>s.time_out&&!s.partial);
+  const total  = done.reduce((a,s)=>a+parseFloat(s.hours||0),0);
+  const hasOpen= ss.some(s=>!s.time_out||s.partial);
+  const ins    = ss.map(s=>s.time_in).filter(Boolean).sort();
+  const outs   = done.map(s=>s.time_out).filter(Boolean).sort();
 
-  if (activeDayRecord) {
-    // Append new session to existing record
-    const sessions = [...(activeDayRecord.sessions || [])];
-    const hasOpen  = sessions.some(s => s.partial);
-    if (hasOpen) { toast('Close the open session first (stamp Time Out)', 'warn'); return; }
-    activeSessionIdx = sessions.length;
-    sessions.push(newSession);
-    await _persistUpdate(sessions, dateStr, dateVal);
-  } else {
-    // Brand new day record
-    const { data, error } = await db.from('logs').insert({
-      date:        dateStr,
-      mode:        currentMode,
-      time_in:     nowIso,
-      time_out:    null,
-      lunch_in:    null,
-      lunch_out:   null,
-      total_hours: 0,
-      sessions:    [newSession],
-      status:      'partial'
-    }).select();
-    if (error) { toast('Error saving', 'error'); return; }
-    activeDayRecord  = data[0];
-    activeSessionIdx = 0;
-    toast(`⏱ Time In · ${timeStr} — session started!`, 'success');
-    await renderLogs();
-    refreshStampUI();
-    renderSessionTimeline();
-  }
-}
-
-/* ══ PERSIST UPDATE ══ */
-async function _persistUpdate(sessions, dateStr, dateVal) {
-  const completeSessions = sessions.filter(s => !s.partial && s.time_out);
-  const totalHours       = completeSessions.reduce((acc,s) => acc + parseFloat(s.hours||0), 0);
-  const hasPartial       = sessions.some(s => s.partial);
-  const allIns           = sessions.map(s => s.time_in).filter(Boolean);
-  const allOuts          = completeSessions.map(s => s.time_out).filter(Boolean);
-  const firstIn          = allIns.length  ? allIns.reduce((a,b) => a<b?a:b)  : null;
-  const lastOut          = allOuts.length ? allOuts.reduce((a,b) => a>b?a:b) : null;
-
-  // Primary lunch from first session (legacy compat)
-  const firstLunchIn  = sessions[0]?.break_in  || null;
-  const firstLunchOut = sessions[0]?.break_out || null;
-
-  const payload = {
-    mode:        currentMode,
-    time_in:     firstIn,
-    time_out:    lastOut,
-    lunch_in:    firstLunchIn,
-    lunch_out:   firstLunchOut,
-    total_hours: parseFloat(totalHours.toFixed(2)),
-    sessions:    sessions,
-    status:      hasPartial ? 'partial' : 'complete'
+  const payload={
+    mode, sessions:ss, status:hasOpen?'partial':'complete',
+    time_in:ins[0]||null, time_out:outs.at(-1)||null,
+    lunch_in:ss[0]?.break_in||null, lunch_out:ss[0]?.break_out||null,
+    total_hours:parseFloat(total.toFixed(2))
   };
-
-  const { data, error } = await db.from('logs').update(payload).eq('id', activeDayRecord.id).select();
-  if (error) { toast('Error updating session', 'error'); return; }
-  activeDayRecord = data[0];
+  const{data,error}=await db.from('logs').update(payload).eq('id',rec.id).select();
+  if(error){ toast('DB error: '+error.message,'e'); return; }
+  rec=data[0];
   await renderLogs();
-  refreshStampUI();
-  renderSessionTimeline();
+  redraw();
+  redrawTimeline();
 }
 
-/* ══ ADD NEW SESSION ══ */
-function addNewSession() {
-  if (!document.getElementById('sessionDate')?.value) { toast('Select a date first', 'error'); return; }
-  // Reset the stamp grid to blank for a new session
-  // activeSessionIdx is already set to sessions.length (next slot) by refreshStampUI logic
-  const sessions = activeDayRecord?.sessions || [];
-  // Point to next session
-  activeSessionIdx = sessions.length;
-  // Clear displays
-  ['timein','timeout','breakin','breakout'].forEach(f => setDisp(f, null));
-  setCellState('timein',   'active',   false, false);
-  setCellState('timeout',  'disabled', false, true);
-  setCellState('breakin',  'disabled', false, true);
-  setCellState('breakout', 'disabled', false, true);
-  const numEl = document.getElementById('lspSessionNum');
-  if (numEl) numEl.textContent = `SESSION ${activeSessionIdx + 1}`;
-  const sbMsg = document.getElementById('sbMsg');
-  if (sbMsg) sbMsg.textContent = `Session ${activeSessionIdx + 1} ready — tap TIME IN`;
-  const addBtn = document.getElementById('addSessionBtn');
-  if (addBtn) addBtn.disabled = true;
-  clearElapsedTimer();
-  const el = document.getElementById('lspElapsed'); if (el) el.textContent = '';
-  const dot = document.getElementById('lspDot'); if (dot) dot.className = 'lsp-status-dot';
-  const statusText = document.getElementById('lspStatusText'); if (statusText) statusText.textContent = 'New session ready';
-  toast(`Session ${activeSessionIdx + 1} ready — tap TIME IN`, 'info');
-}
+function clone(x){ return JSON.parse(JSON.stringify(x)); }
 
-/* ══ SESSION TIMELINE ══ */
-function renderSessionTimeline() {
-  const wrap = document.getElementById('sessionTimeline');
-  const list = document.getElementById('sessionTimelineList');
-  if (!wrap || !list) return;
-  const sessions = activeDayRecord?.sessions || [];
-  if (!sessions.length) { wrap.style.display='none'; return; }
-  wrap.style.display = 'block'; list.innerHTML = '';
-  let dayTotal = 0;
-  sessions.forEach((s, i) => {
-    const item = document.createElement('div');
-    const isPartial = s.partial || !s.time_out;
-    item.className = `stl-item${isPartial ? ' stl-open' : ''}`;
-    const h = parseFloat(s.hours||0);
-    dayTotal += h;
-    const breakTag = s.break_in ? `<span class="stl-break-tag">☕ ${fmtTime(s.break_in)}${s.break_out ? '–'+fmtTime(s.break_out) : ' →?'}</span>` : '';
-    if (isPartial) {
-      item.innerHTML = `<span class="stl-times">S${i+1}: ${fmtTime(s.time_in)} → <span style="color:var(--warn)">IN PROGRESS</span> ${breakTag}</span><span class="stl-hrs" style="color:var(--warn)">open</span>`;
-    } else {
-      item.innerHTML = `<span class="stl-times">S${i+1}: ${fmtTime(s.time_in)} – ${fmtTime(s.time_out)} ${breakTag}</span><span class="stl-hrs" style="color:var(--accent3)">${h.toFixed(2)}h</span>`;
-    }
-    list.appendChild(item);
+/* ─────────────────────────────────────────
+   ADD ANOTHER SESSION
+───────────────────────────────────────── */
+function addSession(){
+  if(!rec) return;
+  sidx=(rec.sessions||[]).length;
+  /* reset visuals to blank */
+  ['ti','to','bi','bo'].forEach(f=>{
+    setVal(f,null);
+    setCell(f,f==='ti'?'active':'off',false,f!=='ti');
   });
-  if (dayTotal > 0) {
-    const t = document.createElement('div'); t.className = 'stl-total-row';
-    t.innerHTML = `<span style="color:var(--text-muted)">Total today</span><span style="color:var(--accent)">${dayTotal.toFixed(2)} hrs</span>`;
+  const n=$('spNum');  if(n) n.textContent=`SESSION ${sidx+1}`;
+  const s=$('spStatus'); if(s) s.textContent='New session ready';
+  const m=$('sbMsg'); if(m) m.innerHTML=`Session ${sidx+1} — tap <strong>TIME IN</strong>`;
+  const a=$('addBtn'); if(a) a.disabled=true;
+  const d=$('spDot'); if(d) d.className='dot';
+  const sd=$('sbDot'); if(sd) sd.className='dot';
+  stopTimer();
+  toast(`Session ${sidx+1} ready — tap TIME IN`,'i');
+}
+
+/* ─────────────────────────────────────────
+   TIMELINE
+───────────────────────────────────────── */
+function redrawTimeline(){
+  const wrap=$('stl'); const list=$('stl-list');
+  if(!wrap||!list) return;
+  const ss=rec?.sessions||[];
+  if(!ss.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block'; list.innerHTML=''; let tot=0;
+  ss.forEach((s,i)=>{
+    const open=!s.time_out||s.partial;
+    const h=parseFloat(s.hours||0); tot+=h;
+    const brk=s.break_in
+      ?`<span style="font-size:9px;color:var(--a3);background:rgba(0,229,192,.1);border:1px solid rgba(0,229,192,.2);padding:1px 6px;border-radius:4px">☕ ${fmt(s.break_in)}${s.break_out?'–'+fmt(s.break_out):' open'}</span>`
+      :'';
+    const row=document.createElement('div');
+    row.className='stl-row'+(open?' open':'');
+    row.innerHTML=open
+      ?`<span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--tm)">S${i+1}: ${fmt(s.time_in)} → <span style="color:var(--warn)">OPEN</span>${brk}</span><span style="color:var(--warn);font-weight:700">open</span>`
+      :`<span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--tm)">S${i+1}: ${fmt(s.time_in)} – ${fmt(s.time_out)} ${brk}</span><span style="color:var(--a3);font-weight:700">${h.toFixed(2)}h</span>`;
+    list.appendChild(row);
+  });
+  if(tot>0){
+    const t=document.createElement('div'); t.className='stl-tot';
+    t.innerHTML=`<span style="color:var(--tm)">Total today</span><span style="color:var(--a)">${tot.toFixed(2)} hrs</span>`;
     list.appendChild(t);
   }
 }
 
-/* ══ CALC HOURS ══ */
-function calcSessionHours(s) {
-  return calcSessionHoursFromTimes(s.time_in, s.time_out, s.break_in, s.break_out);
+/* ─────────────────────────────────────────
+   MANUAL LOG MODAL
+───────────────────────────────────────── */
+function openMl(){
+  mlMode=mode;
+  mlBlocks=[{ti:'',to:'',bi:'',bo:'',brkOn:false}];
+  const d=$('ml-dt'); if(d) d.value=$('fDate')?.value||todayISO();
+  mlDtChange(); mlSetMode(mlMode); renderMlBlocks(); mlPreview();
+  $('mlo').classList.add('open');
 }
-function calcSessionHoursFromTimes(ti, to, bi, bo) {
-  if (!ti || !to) return 0;
-  let h = (new Date(to) - new Date(ti)) / 3600000;
-  if (bi && bo) h -= (new Date(bo) - new Date(bi)) / 3600000;
-  return Math.max(0, h);
+function closeMl(){ $('mlo').classList.remove('open'); }
+function mlSetMode(m){
+  mlMode=m;
+  const bo=$('ml-bOff'); const bh=$('ml-bHome');
+  if(bo) bo.className='modebtn'+(m==='Office'?' m-off':'');
+  if(bh) bh.className='modebtn'+(m==='Home'?' m-home':'');
+}
+function mlSetToday(){ const d=$('ml-dt'); if(d){d.value=todayISO();mlDtChange();} }
+function mlDtChange(){
+  const val=$('ml-dt')?.value; const tag=$('ml-dtag');
+  if(!tag) return;
+  if(!val){ tag.innerHTML=''; return; }
+  const diff=Math.round((new Date().setHours(0,0,0,0)-new Date(val+'T00:00:00'))/86400000);
+  tag.innerHTML = diff===0 ? '<span style="color:var(--a3)">✓ Today</span>'
+    : diff>0 ? `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`
+             : '<span style="color:var(--warn)">⚠ Future date</span>';
+  mlPreview();
+}
+function mlAddBlock(){ mlBlocks.push({ti:'',to:'',bi:'',bo:'',brkOn:false}); renderMlBlocks(); mlPreview(); }
+function mlRm(i){ if(mlBlocks.length<=1){toast('Need at least one session','w');return;} mlBlocks.splice(i,1); renderMlBlocks(); mlPreview(); }
+function mlTogBrk(i){ mlBlocks[i].brkOn=!mlBlocks[i].brkOn; if(!mlBlocks[i].brkOn){mlBlocks[i].bi='';mlBlocks[i].bo='';} renderMlBlocks(); mlPreview(); }
+function mlFC(i,field,v){ mlBlocks[i][field]=v; mlPreview(); }
+
+function renderMlBlocks(){
+  const c=$('ml-blocks'); if(!c) return;
+  c.innerHTML='';
+  mlBlocks.forEach((s,i)=>{
+    const d=document.createElement('div'); d.className='ml-block';
+    d.innerHTML=`
+      <div class="ml-blk-hdr">
+        <span class="ml-blk-lbl">Session ${i+1}</span>
+        ${mlBlocks.length>1?`<button class="ml-rm" onclick="mlRm(${i})"><i class="bi bi-trash3 me-1"></i>Remove</button>`:''}
+      </div>
+      <div class="mlrow">
+        <div><label class="flbl">Time In</label><input type="time" class="finput" value="${s.ti}" oninput="mlFC(${i},'ti',this.value)"></div>
+        <div class="mlarr">→</div>
+        <div><label class="flbl">Time Out</label><input type="time" class="finput" value="${s.to}" oninput="mlFC(${i},'to',this.value)"></div>
+      </div>
+      <div class="ml-brk ${s.brkOn?'on':''}" onclick="mlTogBrk(${i})">
+        <span>☕</span><span>${s.brkOn?'Break Included':'Include Lunch Break'}</span>
+        <i class="bi bi-chevron-${s.brkOn?'up':'down'}" style="margin-left:auto"></i>
+      </div>
+      ${s.brkOn?`
+      <div style="margin-top:10px">
+        <div class="mlrow">
+          <div><label class="flbl">Break Start</label><input type="time" class="finput" value="${s.bi}" oninput="mlFC(${i},'bi',this.value)"></div>
+          <div class="mlarr">→</div>
+          <div><label class="flbl">Break End</label><input type="time" class="finput" value="${s.bo}" oninput="mlFC(${i},'bo',this.value)"></div>
+        </div>
+      </div>`:''}`;
+    c.appendChild(d);
+  });
 }
 
-/* ══ TABS ══ */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.bnav-item').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('bnav-' + tab)?.classList.add('active');
-  if (tab === 'log') injectForm('tab-log');
-  if (tab === 'reports') updateReports();
-  window.scrollTo(0,0);
+function mlPreview(){
+  const dv=$('ml-dt')?.value; let total=0; const parts=[];
+  mlBlocks.forEach((s,i)=>{
+    if(!s.ti||!s.to||!dv) return;
+    const h=hrs(toISO(dv,s.ti),toISO(dv,s.to),
+                s.brkOn&&s.bi?toISO(dv,s.bi):null,
+                s.brkOn&&s.bo?toISO(dv,s.bo):null);
+    if(h>0){total+=h;parts.push(`S${i+1}: ${h.toFixed(2)}h`);}
+  });
+  const ph=$('ml-phrs'); const ps=$('ml-psub');
+  if(ph) ph.textContent=total>0?`${total.toFixed(2)} hrs`:'-- hrs';
+  if(ps) ps.textContent=parts.length?parts.join(' · '):'Enter times above';
 }
 
-/* ══ RENDER LOGS ══ */
-async function renderLogs() {
-  const { data, error } = await db.from('logs').select('*').order('id',{ascending:false});
-  if (error) { toast('Failed to load logs','error'); return; }
-  allLogs = data || [];
+async function mlSave(){
+  const dv=$('ml-dt')?.value; if(!dv){toast('Select a date','e');return;}
+  const ds=dateStr(dv);
+  const sessions=[];
+  for(const s of mlBlocks){
+    if(!s.ti||!s.to) continue;
+    const ti=toISO(dv,s.ti), to=toISO(dv,s.to);
+    const bi=s.brkOn&&s.bi?toISO(dv,s.bi):null;
+    const bo=s.brkOn&&s.bo?toISO(dv,s.bo):null;
+    const h=hrs(ti,to,bi,bo);
+    if(h<=0) continue;
+    sessions.push({time_in:ti,time_out:to,break_in:bi,break_out:bo,hours:parseFloat(h.toFixed(2)),partial:false});
+  }
+  if(!sessions.length){toast('No valid sessions — check your times','e');return;}
 
-  const today=new Date(), cw=getWeek(today);
-  let ojt=0, wk=0, mo=0, td=0;
-  allLogs.forEach(l => {
+  const btn=$('ml-sbtn'); btn.disabled=true; btn.textContent='Saving…';
+  const total=sessions.reduce((a,s)=>a+s.hours,0);
+  const {data:ex}=await db.from('logs').select('*').eq('date',ds);
+
+  if(ex&&ex.length){
+    const prev=ex[0];
+    const prev_ss=(prev.sessions||[]).filter(s=>s.time_out&&!s.partial);
+    const merged=[...prev_ss,...sessions];
+    const nt=merged.reduce((a,s)=>a+parseFloat(s.hours||0),0);
+    const{error}=await db.from('logs').update({
+      mode:mlMode, sessions:merged, status:'complete',
+      time_in:merged.map(s=>s.time_in).sort()[0],
+      time_out:merged.map(s=>s.time_out).sort().at(-1),
+      lunch_in:merged[0]?.break_in||null, lunch_out:merged[0]?.break_out||null,
+      total_hours:parseFloat(nt.toFixed(2))
+    }).eq('id',prev.id);
+    if(error){toast('DB error: '+error.message,'e');btn.disabled=false;btn.innerHTML='<i class="bi bi-check2-circle me-2"></i>SAVE LOG ENTRY';return;}
+    toast(`✅ Added to ${ds} · Total now ${nt.toFixed(2)} hrs`,'s');
+  } else {
+    const ins=sessions.map(s=>s.time_in).sort();
+    const outs=sessions.map(s=>s.time_out).sort();
+    const{error}=await db.from('logs').insert({
+      date:ds, mode:mlMode,
+      time_in:ins[0], time_out:outs.at(-1),
+      lunch_in:sessions[0]?.break_in||null, lunch_out:sessions[0]?.break_out||null,
+      total_hours:parseFloat(total.toFixed(2)), sessions, status:'complete'
+    });
+    if(error){toast('DB error: '+error.message,'e');btn.disabled=false;btn.innerHTML='<i class="bi bi-check2-circle me-2"></i>SAVE LOG ENTRY';return;}
+    toast(`✅ Logged ${sessions.length} session(s) for ${ds} · ${total.toFixed(2)} hrs`,'s');
+  }
+
+  btn.disabled=false; btn.innerHTML='<i class="bi bi-check2-circle me-2"></i>SAVE LOG ENTRY';
+  closeMl();
+  const ld=$('fDate')?.value;
+  if(ld&&dateStr(ld)===ds) await onDateChange();
+  await renderLogs();
+}
+
+/* ─────────────────────────────────────────
+   RENDER LOGS
+───────────────────────────────────────── */
+async function renderLogs(){
+  const{data,error}=await db.from('logs').select('*').order('id',{ascending:false});
+  if(error){toast('Load error: '+error.message,'e');return;}
+  allLogs=data||[];
+
+  const today=new Date(), cw=isoWeek(today);
+  let ojt=0,wk=0,mo=0,td=0;
+  allLogs.forEach(l=>{
     const h=parseFloat(l.total_hours)||0; ojt+=h;
+    if(!l.time_in) return;
     const d=new Date(l.time_in);
-    if (d.getFullYear()===today.getFullYear()&&d.getMonth()===today.getMonth()&&d.getDate()===today.getDate()) td+=h;
-    if (getWeek(d)===cw&&d.getFullYear()===today.getFullYear()) wk+=h;
-    if (d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear()) mo+=h;
+    if(sameDay(d,today)) td+=h;
+    if(isoWeek(d)===cw&&d.getFullYear()===today.getFullYear()) wk+=h;
+    if(d.getMonth()===today.getMonth()&&d.getFullYear()===today.getFullYear()) mo+=h;
   });
 
   const pct=Math.min(ojt/300*100,100);
-  const setT=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-  const setS=(id,v)=>{ const e=document.getElementById(id); if(e) e.style.width=v; };
-  setT('ojtCurrent',ojt.toFixed(2)); setS('ojtFill',pct+'%');
-  setT('ojtPct',pct.toFixed(1)+'% complete'); setT('ojtRemaining',Math.max(0,300-ojt).toFixed(2)+' hrs remaining');
-  setT('todayHours',td.toFixed(2)); setT('weekHours',wk.toFixed(2)); setT('monthHours',mo.toFixed(2));
+  const st=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  const ss=(id,v)=>{const e=$(id);if(e)e.style.width=v;};
+  st('ojtHrs',ojt.toFixed(2)); ss('ojtFill',pct+'%');
+  st('ojtPct',pct.toFixed(1)+'% complete'); st('ojtRem',Math.max(0,300-ojt).toFixed(2)+' hrs remaining');
+  st('tdH',td.toFixed(2)); st('wkH',wk.toFixed(2)); st('moH',mo.toFixed(2));
 
-  const sv=document.getElementById('monthPicker')?.value;
-  const n=new Date(); const [sY,sM]=sv?sv.split('-').map(Number):[n.getFullYear(),n.getMonth()+1];
-  const filtered=allLogs.filter(l=>{ if (!l.time_in) return false; const d=new Date(l.time_in); return d.getFullYear()===sY&&(d.getMonth()+1)===sM; });
-  renderTable(filtered); renderCards(filtered);
+  const sv=$('moPicker')?.value;
+  const n=new Date(); const[sy,sm]=sv?sv.split('-').map(Number):[n.getFullYear(),n.getMonth()+1];
+  const filt=allLogs.filter(l=>{
+    if(!l.time_in) return false;
+    const d=new Date(l.time_in);
+    return d.getFullYear()===sy&&(d.getMonth()+1)===sm;
+  });
+  renderTable(filt); renderCards(filt);
 }
-
-function getWeek(d) {
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function isoWeek(d){
   d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
   const day=d.getUTCDay()||7; d.setUTCDate(d.getUTCDate()+4-day);
   const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));
   return Math.ceil((((d-ys)/86400000)+1)/7);
 }
 
-function sessionsText(log) {
-  const sessions=log.sessions;
-  if (!sessions||!sessions.length) {
-    const ti=fmtTime(log.time_in);
-    const to=log.time_out?fmtTime(log.time_out):'???';
-    return `${ti} – ${to}`;
-  }
-  return sessions.map((s,i)=>{
-    if (s.partial||!s.time_out) {
-      return `<span style="display:block">${i+1}. ${fmtTime(s.time_in)} – <span style="color:var(--warn)">IN PROGRESS</span></span>`;
-    }
-    const brk = s.break_in ? ` ☕` : '';
-    return `<span style="display:block">${i+1}. ${fmtTime(s.time_in)}–${fmtTime(s.time_out)} <span style="color:var(--accent)">(${parseFloat(s.hours).toFixed(2)}h)</span>${brk}</span>`;
+function shtml(log){
+  const s=log.sessions;
+  if(!s||!s.length) return`<span style="display:block">1. ${fmt(log.time_in)} – ${log.time_out?fmt(log.time_out):'???'}</span>`;
+  return s.map((x,i)=>{
+    if(!x.time_out||x.partial) return`<span style="display:block">${i+1}. ${fmt(x.time_in)} – <span style="color:var(--warn)">OPEN</span></span>`;
+    const b=x.break_in?' ☕':'';
+    return`<span style="display:block">${i+1}. ${fmt(x.time_in)}–${fmt(x.time_out)} <span style="color:var(--a)">(${parseFloat(x.hours||0).toFixed(2)}h)</span>${b}</span>`;
   }).join('');
 }
 
-function renderTable(rows) {
-  const tb=document.getElementById('logBody'); if (!tb) return;
+function renderTable(rows){
+  const tb=$('tblBody'); if(!tb) return;
   tb.innerHTML='';
-  if (!rows.length) { tb.innerHTML=`<tr><td colspan="6"><div class="empty-state"><div class="ei">📂</div>No sessions this month</div></td></tr>`; return; }
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="ei">📂</div>No sessions this month</div></td></tr>`;return;}
   rows.forEach((l,i)=>{
-    const h=parseFloat(l.total_hours), isPartial=l.status==='partial'||(l.sessions||[]).some(s=>s.partial);
-    const hc=isPartial?'':(h>=8?'h-hi':h>=6?'h-mid':'h-lo');
-    const mc=isPartial?'b-open':(l.mode==='Office'?'b-office':'b-home');
+    const h=parseFloat(l.total_hours);
+    const op=l.status==='partial'||(l.sessions||[]).some(s=>!s.time_out||s.partial);
+    const hc=op?'':(h>=8?'h-hi':h>=5?'h-md':'h-lo');
+    const mc=op?'b-open':(l.mode==='Office'?'b-off':'b-home');
     const mi=l.mode==='Office'?'🏢':'🏠';
-    const lunch=l.lunch_in&&l.lunch_out?`${fmtTime(l.lunch_in)}–${fmtTime(l.lunch_out)}`:'<span style="color:var(--text-dim)">—</span>';
-    const totalDisp=isPartial?'<span style="color:var(--warn)">⏳ Open</span>':`${h.toFixed(2)}h`;
+    const lunch=l.lunch_in&&l.lunch_out?`${fmt(l.lunch_in)}–${fmt(l.lunch_out)}`:'<span style="color:var(--td)">—</span>';
     const tr=document.createElement('tr'); tr.style.animationDelay=`${i*30}ms`;
-    tr.innerHTML=`<td style="color:var(--text-muted)">${l.date}</td><td><span class="badge ${mc}">${mi} ${isPartial?'OPEN':l.mode.toUpperCase()}</span></td><td style="font-size:11px;line-height:1.8">${sessionsText(l)}</td><td style="font-size:10px">${lunch}</td><td class="${hc}">${totalDisp}</td><td><button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-lg"></i></button></td>`;
+    tr.innerHTML=`<td style="color:var(--tm)">${l.date}</td><td><span class="badge ${mc}">${mi} ${op?'OPEN':l.mode.toUpperCase()}</span></td><td style="font-size:11px;line-height:1.8">${shtml(l)}</td><td style="font-size:10px">${lunch}</td><td class="${hc}">${op?'<span style="color:var(--warn)">⏳</span>':`${h.toFixed(2)}h`}</td><td><button class="delbtn" onclick="delLog(${l.id})"><i class="bi bi-x-lg"></i></button></td>`;
     tb.appendChild(tr);
   });
 }
-
-function renderCards(rows) {
-  const w=document.getElementById('logCards'); if (!w) return;
+function renderCards(rows){
+  const w=$('cardBody'); if(!w) return;
   w.innerHTML='';
-  if (!rows.length) { w.innerHTML=`<div class="empty-state"><div class="ei">📂</div>No sessions this month</div>`; return; }
+  if(!rows.length){w.innerHTML=`<div class="empty"><div class="ei">📂</div>No sessions this month</div>`;return;}
   rows.forEach((l,i)=>{
-    const h=parseFloat(l.total_hours), isPartial=l.status==='partial'||(l.sessions||[]).some(s=>s.partial);
-    const hc=isPartial?'h-lo':(h>=8?'h-hi':h>=6?'h-mid':'h-lo');
-    const mc=isPartial?'b-open':(l.mode==='Office'?'b-office':'b-home');
+    const h=parseFloat(l.total_hours);
+    const op=l.status==='partial'||(l.sessions||[]).some(s=>!s.time_out||s.partial);
+    const hc=op?'h-lo':(h>=8?'h-hi':h>=5?'h-md':'h-lo');
+    const mc=op?'b-open':(l.mode==='Office'?'b-off':'b-home');
     const mi=l.mode==='Office'?'🏢':'🏠';
-    const sessions=l.sessions||[{time_in:l.time_in,time_out:l.time_out,break_in:l.lunch_in,break_out:l.lunch_out,hours:l.total_hours}];
-    const c=document.createElement('div');
-    c.className=`log-card${isPartial?' lc-open':''}`; c.style.animationDelay=`${i*30}ms`;
-    const subsHtml=sessions.map((s,j)=>{
-      const brk = (s.break_in||s.lunch_in) ? `<span style="color:var(--accent3);margin-left:4px">☕${fmtTime(s.break_in||s.lunch_in)}</span>` : '';
-      if (s.partial||!s.time_out) {
-        return `<div class="lc-sub"><span>S${j+1}: ${fmtTime(s.time_in)} – <span style="color:var(--warn)">IN PROGRESS</span>${brk}</span></div>`;
-      }
-      return `<div class="lc-sub"><span>S${j+1}: ${fmtTime(s.time_in)}–${fmtTime(s.time_out)}${brk}</span><span class="lcs-hrs">${parseFloat(s.hours||0).toFixed(2)}h</span></div>`;
+    const ss=l.sessions||[{time_in:l.time_in,time_out:l.time_out,break_in:l.lunch_in,break_out:l.lunch_out,hours:l.total_hours}];
+    const subs=ss.map((s,j)=>{
+      const b=s.break_in?`<span style="color:var(--a3);margin-left:4px">☕${fmt(s.break_in)}</span>`:'';
+      if(!s.time_out||s.partial) return`<div class="lc-s"><span>S${j+1}: ${fmt(s.time_in)} – <span style="color:var(--warn)">OPEN</span>${b}</span></div>`;
+      return`<div class="lc-s"><span>S${j+1}: ${fmt(s.time_in)}–${fmt(s.time_out)}${b}</span><span class="sh">${parseFloat(s.hours||0).toFixed(2)}h</span></div>`;
     }).join('');
-    const totalDisp=isPartial?'<span style="color:var(--warn);font-size:12px">⏳ IN PROGRESS</span>':`<span class="lc-hrs ${hc}">${h.toFixed(2)}h</span>`;
-    c.innerHTML=`<div class="lc-top"><div><div class="lc-date">${l.date}</div><span class="badge ${mc} mt-1">${mi} ${isPartial?'OPEN SESSION':l.mode.toUpperCase()}</span></div><div class="d-flex align-items-center gap-2">${totalDisp}<button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-circle"></i></button></div></div><div class="lc-sub-sessions">${subsHtml}</div>`;
+    const c=document.createElement('div'); c.className=`logcard${op?' lc-open':''}`; c.style.animationDelay=`${i*30}ms`;
+    c.innerHTML=`<div class="lc-top"><div><div class="lc-d">${l.date}</div><span class="badge ${mc} mt-1">${mi} ${op?'OPEN SESSION':l.mode.toUpperCase()}</span></div><div style="display:flex;align-items:center;gap:8px">${op?'<span style="color:var(--warn);font-size:12px">⏳ OPEN</span>':`<span class="lc-h ${hc}">${h.toFixed(2)}h</span>`}<button class="delbtn" onclick="delLog(${l.id})"><i class="bi bi-x-circle"></i></button></div></div><div class="lc-ss">${subs}</div>`;
     w.appendChild(c);
   });
 }
 
-async function deleteLog(id) {
-  if (!confirm('Delete this session?')) return;
-  const { error }=await db.from('logs').delete().eq('id',id);
-  if (error) toast('Failed to delete','error');
-  else { toast('Session deleted'); if (activeDayRecord?.id===id) { activeDayRecord=null; activeSessionIdx=0; refreshStampUI(); renderSessionTimeline(); } renderLogs(); }
+async function delLog(id){
+  if(!confirm('Delete this session?')) return;
+  const{error}=await db.from('logs').delete().eq('id',id);
+  if(error) toast('Delete failed: '+error.message,'e');
+  else{
+    toast('Session deleted','s');
+    if(rec?.id===id){rec=null;sidx=0;redraw();redrawTimeline();}
+    renderLogs();
+  }
 }
 
-function updateReports() {
-  const cl=allLogs.filter(l=>l.status!=='partial'&&!(l.sessions||[]).every(s=>s.partial));
+function renderReports(){
+  const cl=allLogs.filter(l=>l.status!=='partial'&&!(l.sessions||[]).every(s=>s.partial||!s.time_out));
   const total=cl.reduce((s,l)=>s+(parseFloat(l.total_hours)||0),0);
-  const days=new Set(cl.map(l=>l.date)).size, avg=days?total/days:0, remain=Math.max(0,300-total);
-  const st=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-  const ss=(id,v)=>{ const e=document.getElementById(id); if(e) e.style.width=v; };
-  st('rptTotal',total.toFixed(2)); ss('rptFill',Math.min(total/300*100,100)+'%');
-  st('rptAvg',avg.toFixed(2)); st('rptDays',days);
-  st('rptEta',avg>0?`~${Math.ceil(remain/avg)} days`:'—');
-  st('rptOffice',cl.filter(l=>l.mode==='Office').length);
-  st('rptWfh',cl.filter(l=>l.mode==='Home').length);
-  st('rptRemaining',remain.toFixed(2));
+  const days=new Set(cl.map(l=>l.date)).size, avg=days?total/days:0, rem=Math.max(0,300-total);
+  const st=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  const ss=(id,v)=>{const e=$(id);if(e)e.style.width=v;};
+  st('rTotal',total.toFixed(2)); ss('rFill',Math.min(total/300*100,100)+'%');
+  st('rAvg',avg.toFixed(2)); st('rDays',days);
+  st('rEta',avg>0?`~${Math.ceil(rem/avg)} days`:'—');
+  st('rOff',cl.filter(l=>l.mode==='Office').length);
+  st('rWfh',cl.filter(l=>l.mode==='Home').length);
+  st('rRem',rem.toFixed(2));
 }
 
-function toast(msg, type='success') {
-  const el=document.createElement('div'); el.className=`tt t-${type}`;
-  el.innerHTML=`<div class="tt-dot"></div><span>${msg}</span>`;
-  document.getElementById('toastWrap').appendChild(el);
-  setTimeout(()=>{ el.style.cssText='opacity:0;transform:translateX(16px);transition:.3s'; setTimeout(()=>el.remove(),320); },3200);
+/* ─────────────────────────────────────────
+   TOAST
+───────────────────────────────────────── */
+const TT={'s':'ts','e':'te','w':'tw','i':'ti'};
+function toast(msg,type='s'){
+  const el=document.createElement('div');
+  el.className=`toast2 ${TT[type]||'ts'}`;
+  el.innerHTML=`<div class="tdot"></div><span>${msg}</span>`;
+  $('twrap').appendChild(el);
+  setTimeout(()=>{el.style.cssText='opacity:0;transform:translateX(16px);transition:.3s';setTimeout(()=>el.remove(),320);},3500);
 }
 
-/* ══ INIT ══ */
-const _now=new Date();
-const mpEl=document.getElementById('monthPicker');
-if (mpEl) mpEl.value=`${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}`;
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+const _n=new Date();
+const mp=$('moPicker');
+if(mp) mp.value=`${_n.getFullYear()}-${pad(_n.getMonth()+1)}`;
 
-function tryDesktopForm() {
-  const slot=document.getElementById('desktopFormSlot');
-  if (slot && window.innerWidth>=992 && !slot.children.length) injectForm('desktopFormSlot');
+/* desktop: inject live form into sidebar slot */
+function tryDesk(){
+  const slot=$('deskSlot');
+  if(slot&&window.innerWidth>=992&&!slot.children.length) buildForm('deskSlot');
 }
-tryDesktopForm();
-window.addEventListener('resize', tryDesktopForm);
+tryDesk();
+window.addEventListener('resize',tryDesk);
+
+/* initial data load */
 renderLogs();
 </script>
 </body>
