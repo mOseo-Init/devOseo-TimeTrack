@@ -99,6 +99,7 @@
     .tab-page { display: none; }
     .tab-page.active { display: block; }
 
+    /* ── OJT HERO ── */
     .ojt-hero { position: relative; overflow: hidden; padding: 20px 22px; }
     .ojt-hero::before { content: 'OJT'; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 70px; font-weight: 800; color: rgba(79,142,247,0.04); font-family: var(--mono); pointer-events: none; letter-spacing: -4px; }
     .ojt-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 3px; color: var(--text-muted); font-family: var(--mono); margin-bottom: 6px; }
@@ -133,110 +134,221 @@
     .mode-btn.mo-office { background: rgba(79,142,247,0.12); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
     .mode-btn.mo-home   { background: rgba(124,92,252,0.12); color: var(--accent2); box-shadow: inset 0 0 0 1.5px var(--accent2); }
 
-    input[type="date"], input[type="month"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 12px; outline: none; transition: border-color .2s, box-shadow .2s; color-scheme: dark; width: 100%; }
-    input[type="date"]:focus, input[type="month"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
-    input[type="month"] { width: auto; padding: 6px 10px; font-size: 12px; }
+    input[type="date"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 12px; outline: none; transition: border-color .2s, box-shadow .2s; color-scheme: dark; width: 100%; }
+    input[type="date"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
+    input[type="month"] { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; outline: none; transition: border-color .2s; color-scheme: dark; width: auto; }
 
     .today-btn { flex-shrink: 0; padding: 10px 12px; background: var(--surface3); border: 1px solid var(--border-bright); border-radius: 8px; color: var(--accent3); font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 1px; cursor: pointer; white-space: nowrap; transition: all .2s; }
     .today-btn:hover { background: rgba(0,229,192,0.12); border-color: var(--accent3); }
     .date-tag { font-family: var(--mono); font-size: 10px; margin-top: 5px; min-height: 16px; }
 
-    .bd-banner { display: none; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 8px; margin-bottom: 10px; background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.25); font-family: var(--mono); font-size: 11px; color: var(--warn); }
-    .bd-banner.show { display: flex; }
+    /* ── LIVE SESSION PANEL ── */
+    .live-session-panel {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .lsp-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .lsp-session-badge {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lsp-session-num {
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .lsp-status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--text-dim);
+      transition: background .3s;
+    }
+    .lsp-status-dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); animation: blinkDot 1.4s ease infinite; }
+    .lsp-status-dot.break  { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); animation: blinkDot 1.4s ease infinite; }
 
-    /* LOG MODE SWITCHER */
-    .log-mode-switcher { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
-    .lms-btn { padding: 10px 8px; border: none; background: transparent; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: var(--text-muted); transition: all .2s; text-align: center; }
-    .lms-btn:first-child { border-right: 1px solid var(--border); }
-    .lms-btn.lms-active-step { background: rgba(79,142,247,0.12); color: var(--accent); }
-    .lms-btn.lms-active-overall { background: rgba(0,229,192,0.1); color: var(--accent3); }
-    .lms-btn:hover:not(.lms-active-step):not(.lms-active-overall) { color: var(--text); background: var(--surface2); }
+    /* STAMP GRID — 2x2 */
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .stamp-cell {
+      padding: 14px 12px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: background .2s;
+    }
+    .stamp-cell:nth-child(2)  { border-right: none; }
+    .stamp-cell:nth-child(3)  { border-bottom: none; }
+    .stamp-cell:nth-child(4)  { border-right: none; border-bottom: none; }
+    .stamp-cell.cell-done     { background: rgba(0,229,160,0.03); }
+    .stamp-cell.cell-active   { background: rgba(79,142,247,0.05); }
+    .stamp-cell.cell-disabled { opacity: .45; pointer-events: none; }
 
-    /* STEP WIZARD */
-    .step-wizard { display: flex; align-items: center; gap: 0; margin-bottom: 20px; position: relative; }
-    .step-item { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; position: relative; cursor: default; }
-    .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 700; border: 2px solid var(--border); color: var(--text-dim); background: var(--surface2); transition: all .3s; z-index: 1; position: relative; }
-    .step-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); transition: color .3s; text-align: center; line-height: 1.2; }
-    .step-line { position: absolute; top: 16px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 2px; background: var(--border); z-index: 0; transition: background .3s; }
-    .step-item:last-child .step-line { display: none; }
-    .step-item.done .step-circle  { border-color: var(--success); background: rgba(0,229,160,0.12); color: var(--success); }
-    .step-item.done .step-label   { color: var(--success); }
-    .step-item.done .step-line    { background: var(--success); }
-    .step-item.active .step-circle { border-color: var(--accent); background: rgba(79,142,247,0.15); color: var(--accent); box-shadow: 0 0 12px rgba(79,142,247,0.3); }
-    .step-item.active .step-label  { color: var(--accent); }
+    .cell-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cell-label i { font-size: 13px; }
 
-    .step-panel { display: none; }
-    .step-panel.active { display: block; }
+    .cell-time-display {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+      min-height: 24px;
+      letter-spacing: 1px;
+    }
+    .ctd-empty { color: var(--text-dim); font-size: 14px; }
 
-    .step-action-box { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--surface2); margin-bottom: 14px; }
-    .step-action-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+    .stamp-action-btn {
+      padding: 9px 8px;
+      border-radius: 8px;
+      border: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      width: 100%;
+    }
+    .sab-in    { background: rgba(79,142,247,0.14);  color: var(--accent);  box-shadow: inset 0 0 0 1px rgba(79,142,247,.35); }
+    .sab-out   { background: rgba(124,92,252,0.14); color: var(--accent2); box-shadow: inset 0 0 0 1px rgba(124,92,252,.35); }
+    .sab-brkin { background: rgba(0,229,192,0.10);  color: var(--accent3); box-shadow: inset 0 0 0 1px rgba(0,229,192,.3); }
+    .sab-brkout{ background: rgba(255,107,53,0.10); color: var(--warn);    box-shadow: inset 0 0 0 1px rgba(255,107,53,.3); }
+    .sab-in:hover    { background: rgba(79,142,247,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent),  0 0 10px rgba(79,142,247,.2); transform: translateY(-1px); }
+    .sab-out:hover   { background: rgba(124,92,252,0.26); box-shadow: inset 0 0 0 1.5px var(--accent2), 0 0 10px rgba(124,92,252,.2); transform: translateY(-1px); }
+    .sab-brkin:hover { background: rgba(0,229,192,0.20);  box-shadow: inset 0 0 0 1.5px var(--accent3), 0 0 10px rgba(0,229,192,.15); transform: translateY(-1px); }
+    .sab-brkout:hover{ background: rgba(255,107,53,0.20); box-shadow: inset 0 0 0 1.5px var(--warn),    0 0 10px rgba(255,107,53,.15); transform: translateY(-1px); }
+    .stamp-action-btn:disabled { opacity: .38; cursor: not-allowed; transform: none !important; }
+    @keyframes sPop { 0%{transform:scale(1)} 45%{transform:scale(1.05)} 100%{transform:scale(1)} }
+    .stamp-action-btn.pulse { animation: sPop .25s ease; }
+    .stamp-action-btn.stamped-state { box-shadow: inset 0 0 0 1.5px var(--success) !important; }
 
-    .stamp-row   { display: grid; grid-template-columns: 1fr 18px 1fr; align-items: end; gap: 6px; }
-    .stamp-arrow { text-align: center; color: var(--text-dim); font-size: 12px; padding-bottom: 34px; }
-    .stamp-col   { display: flex; flex-direction: column; gap: 4px; }
+    /* SESSION TIMELINE (saved sessions today) */
+    .session-timeline {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .stl-title {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .stl-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 7px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      margin-bottom: 5px;
+      font-family: var(--mono);
+      font-size: 11px;
+      animation: rowIn .2s ease both;
+    }
+    .stl-item.stl-open { border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.04); }
+    .stl-times { color: var(--text-muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .stl-break-tag { font-size: 9px; color: var(--accent3); background: rgba(0,229,192,0.1); border: 1px solid rgba(0,229,192,0.2); padding: 1px 6px; border-radius: 4px; }
+    .stl-hrs { font-weight: 700; }
+    .stl-total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 7px;
+      background: rgba(79,142,247,0.08);
+      border: 1px solid rgba(79,142,247,0.2);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
 
-    .stamp-btn { width: 100%; padding: 8px 4px; border-radius: 7px; border: none; outline: none; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all .18s ease; text-align: center; }
-    .sb-in   { background: rgba(79,142,247,0.14);  color: var(--accent);  box-shadow: inset 0 0 0 1px rgba(79,142,247,0.35); }
-    .sb-out  { background: rgba(124,92,252,0.14);  color: var(--accent2); box-shadow: inset 0 0 0 1px rgba(124,92,252,0.35); }
-    .sb-lin  { background: rgba(0,229,192,0.1);    color: var(--accent3); box-shadow: inset 0 0 0 1px rgba(0,229,192,0.3); }
-    .sb-lout { background: rgba(255,107,53,0.1);   color: var(--warn);    box-shadow: inset 0 0 0 1px rgba(255,107,53,0.3); }
-    .sb-in:hover   { background: rgba(79,142,247,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent),  0 0 10px rgba(79,142,247,0.2); transform: translateY(-1px); }
-    .sb-out:hover  { background: rgba(124,92,252,0.26);  box-shadow: inset 0 0 0 1.5px var(--accent2), 0 0 10px rgba(124,92,252,0.2); transform: translateY(-1px); }
-    .sb-lin:hover  { background: rgba(0,229,192,0.2);    box-shadow: inset 0 0 0 1.5px var(--accent3), 0 0 10px rgba(0,229,192,0.15); transform: translateY(-1px); }
-    .sb-lout:hover { background: rgba(255,107,53,0.2);   box-shadow: inset 0 0 0 1.5px var(--warn),    0 0 10px rgba(255,107,53,0.15); transform: translateY(-1px); }
-    .stamp-btn.stamped { opacity: .85; }
-    @keyframes sPop { 0%{transform:scale(1)} 45%{transform:scale(1.06)} 100%{transform:scale(1)} }
-    .stamp-btn.pulse { animation: sPop .25s ease; }
+    /* ADD SESSION ROW */
+    .add-session-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .add-sess-btn {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px dashed rgba(79,142,247,0.35);
+      background: rgba(79,142,247,0.06);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .add-sess-btn:hover { background: rgba(79,142,247,0.14); border-color: var(--accent); }
+    .add-sess-btn:disabled { opacity: .35; cursor: not-allowed; }
 
-    .step-nav-row { display: flex; gap: 8px; margin-top: 10px; }
-    .step-skip-btn { flex: 1; padding: 10px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all .2s; }
-    .step-skip-btn:hover { border-color: var(--border-bright); color: var(--text); }
-
-    /* PARTIAL BANNER */
-    .partial-banner { display: none; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; margin-bottom: 12px; background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.3); font-family: var(--mono); font-size: 11px; color: var(--accent); animation: bannerPulse 2.5s ease infinite; }
-    .partial-banner.show { display: flex; }
-    @keyframes bannerPulse { 0%,100%{border-color:rgba(79,142,247,0.3)} 50%{border-color:rgba(79,142,247,0.6)} }
-    .partial-badge { flex-shrink:0; padding: 3px 8px; border-radius: 4px; background: rgba(79,142,247,0.2); color: var(--accent); font-size: 9px; font-weight: 700; letter-spacing: 1px; }
-    .partial-resume-btn { margin-left: auto; padding: 5px 12px; border-radius: 6px; border: none; background: rgba(79,142,247,0.2); color: var(--accent); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all .2s; white-space: nowrap; }
-    .partial-resume-btn:hover { background: rgba(79,142,247,0.35); }
-
-    /* OVERALL MODE */
-    .overall-log-box { border: 1px solid rgba(0,229,192,0.2); border-radius: 10px; padding: 16px; background: rgba(0,229,192,0.04); margin-bottom: 14px; }
-    .overall-log-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent3); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-    .overall-row { display: grid; grid-template-columns: 1fr 24px 1fr; align-items: end; gap: 6px; margin-bottom: 12px; }
-    .overall-arrow { text-align:center; color:var(--text-dim); font-size:14px; padding-bottom:34px; }
-    .overall-divider { height:1px; background:rgba(0,229,192,0.1); margin:12px 0; }
-    .overall-break-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; font-family:var(--mono); font-size:10px; color:var(--text-muted); padding:8px 10px; border-radius:7px; border:1px solid var(--border); background:var(--surface2); transition:all .2s; user-select:none; margin-bottom:10px; }
-    .overall-break-toggle:hover { border-color:var(--border-bright); color:var(--text); }
-    .overall-break-toggle.active { border-color:rgba(0,229,192,0.35); color:var(--accent3); background:rgba(0,229,192,0.07); }
-
-    .preview-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
-    .prev-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); font-family: var(--mono); }
-    .prev-hrs { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--accent3); }
-    .prev-sub { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
-
-    .today-sessions-wrap { margin-bottom: 12px; }
-    .today-session-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; background: var(--surface3); border: 1px solid var(--border); margin-bottom: 6px; font-family: var(--mono); font-size: 11px; }
-    .tsi-times { color: var(--text-muted); }
-    .tsi-hours { color: var(--accent3); font-weight: 700; }
-    .tsi-open { color: var(--warn); font-weight: 700; display:flex; align-items:center; gap:5px; }
-    .tsi-open::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--warn); animation: blinkDot 1.2s ease infinite; }
-    @keyframes blinkDot { 0%,100%{opacity:1} 50%{opacity:.3} }
-    .tsi-total-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.2); font-family: var(--mono); font-size: 11px; font-weight: 700; }
-    .tsi-total-lbl { color: var(--text-muted); }
-    .tsi-total-hrs { color: var(--accent); }
-
-    .save-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: 10px; color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .2s; box-shadow: 0 4px 18px rgba(79,142,247,0.3); position: relative; z-index: 1; display: block; margin-top: 14px; }
-    .save-btn:hover   { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(79,142,247,0.4); }
-    .save-btn:active  { transform: none; }
-    .save-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
-
-    .partial-save-btn { width: 100%; padding: 11px; background: rgba(79,142,247,0.1); border: 1px dashed rgba(79,142,247,0.4); border-radius: 10px; color: var(--accent); font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .2s; display: none; margin-top: 8px; }
-    .partial-save-btn:hover { background: rgba(79,142,247,0.18); border-color: var(--accent); }
-    .partial-save-btn:disabled { opacity:.4; cursor:not-allowed; }
+    /* STATUS BAR */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      min-height: 38px;
+    }
+    .status-bar .sb-msg { flex: 1; }
+    .status-bar .sb-elapsed { color: var(--accent3); font-weight: 700; }
 
     .tt-div { height: 1px; background: var(--border); margin: 14px 0; }
 
+    /* LOGS */
     .b-office { background: rgba(79,142,247,0.12); color: var(--accent);  border: 1px solid rgba(79,142,247,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
     .b-home   { background: rgba(124,92,252,0.12); color: var(--accent2); border: 1px solid rgba(124,92,252,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
     .b-open   { background: rgba(255,107,53,0.12); color: var(--warn);    border: 1px solid rgba(255,107,53,0.25); font-family:var(--mono); font-size:9px; letter-spacing:1px; }
@@ -256,32 +368,37 @@
     .lc-date { font-family: var(--mono); font-size: 11px; color: var(--text-muted); }
     .lc-hrs  { font-family: var(--mono); font-size: 18px; font-weight: 700; line-height: 1; }
     .lc-row  { display: flex; flex-wrap: wrap; gap: 10px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
-    .lc-row span { display: flex; align-items: center; gap: 4px; }
     .lc-sub-sessions { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
     .lc-sub { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
     .lc-sub .lcs-hrs { color: var(--accent); }
 
     @keyframes rowIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes blinkDot { 0%,100%{opacity:1} 50%{opacity:.3} }
 
     .toast-wrap { position: fixed; bottom: calc(var(--bot-nav) + 10px); right: 14px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
     .tt { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border-radius: 10px; background: var(--surface3); border: 1px solid var(--border-bright); font-family: var(--mono); font-size: 11px; color: var(--text); box-shadow: 0 6px 24px rgba(0,0,0,0.5); animation: ttIn .28s cubic-bezier(.4,0,.2,1) forwards; pointer-events: auto; max-width: min(360px, calc(100vw - 28px)); }
     .tt.t-success { border-color: rgba(0,229,160,0.3); }
     .tt.t-error   { border-color: rgba(255,107,53,0.35); }
     .tt.t-warn    { border-color: rgba(255,107,53,0.35); }
+    .tt.t-info    { border-color: rgba(79,142,247,0.35); }
     .tt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .t-success .tt-dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
     .t-error .tt-dot   { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
     .t-warn .tt-dot    { background: var(--warn);    box-shadow: 0 0 6px var(--warn); }
+    .t-info .tt-dot    { background: var(--accent);  box-shadow: 0 0 6px var(--accent); }
     @keyframes ttIn { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
 
     .rpt-val { font-family: var(--mono); font-size: 32px; font-weight: 800; line-height: 1; }
     .mf-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .mf-row label { font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin:0; white-space:nowrap; }
 
+    /* help hint */
+    .hint-box { background: rgba(79,142,247,0.06); border: 1px solid rgba(79,142,247,0.18); border-radius: 8px; padding: 10px 12px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); line-height: 1.7; margin-bottom: 12px; }
+    .hint-box strong { color: var(--accent); }
+
     @media (min-width: 992px) { body { padding-bottom: 0; } .bottom-nav { display: none !important; } .tab-page { display: block !important; } .toast-wrap { bottom: 24px; } .app-wrap { padding: 24px 24px 60px; } }
     @media (max-width: 991px) { .log-table-wrap { display: none !important; } .log-cards-wrap { display: block !important; } }
     @media (min-width: 992px) { .log-table-wrap { display: block !important; } .log-cards-wrap { display: none !important; } }
-    .session-panel-wrap { overflow: visible !important; }
   </style>
 </head>
 <body>
@@ -304,6 +421,7 @@
 
 <div class="app-wrap">
 
+  <!-- ══ DASHBOARD ══ -->
   <div class="tab-page active" id="tab-dashboard">
     <div class="card ojt-hero mb-3">
       <div class="ojt-lbl">OJT Progress</div>
@@ -322,7 +440,9 @@
     </div>
 
     <div class="row g-3">
-      <div class="col-lg-4 d-none d-lg-block"><div style="position:sticky;top:70px;" id="desktopFormSlot"></div></div>
+      <div class="col-lg-4 d-none d-lg-block">
+        <div style="position:sticky;top:70px;" id="desktopFormSlot"></div>
+      </div>
       <div class="col-12 col-lg-8">
         <div class="card overflow-hidden">
           <div class="d-flex align-items-center justify-content-between px-3 py-2" style="border-bottom:1px solid var(--border)">
@@ -341,8 +461,10 @@
     </div>
   </div>
 
+  <!-- ══ LOG TAB ══ -->
   <div class="tab-page" id="tab-log"></div>
 
+  <!-- ══ REPORTS ══ -->
   <div class="tab-page" id="tab-reports">
     <div class="sec-lbl mt-1">Reports</div>
     <div class="row g-3">
@@ -364,28 +486,23 @@
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+<!-- ══ FORM TEMPLATE ══ -->
 <template id="formTpl">
-<div class="card session-panel-wrap" style="overflow:visible!important;">
-  <div class="card-body pb-4">
+<div class="card" style="overflow:visible;">
+  <div class="card-body pb-3">
     <div class="sec-lbl">New Session</div>
 
-    <div class="partial-banner" id="partialBanner">
-      <span class="partial-badge">⏳ OPEN</span>
-      <span id="partialBannerText">Session in progress</span>
-      <button class="partial-resume-btn" onclick="resumePartialSession()"><i class="bi bi-play-fill me-1"></i>Resume</button>
-    </div>
-
+    <!-- Date row -->
     <div class="mb-3">
       <label class="form-label">📅 Session Date</label>
       <div class="d-flex gap-2">
-        <input type="date" class="form-control" id="sessionDate" oninput="updateDateTag()">
+        <input type="date" id="sessionDate" oninput="onDateChange()">
         <button class="today-btn" onclick="setToday()"><i class="bi bi-calendar-check me-1"></i>TODAY</button>
       </div>
       <div class="date-tag" id="dateTag"></div>
     </div>
 
-    <div class="bd-banner" id="bdBanner"><i class="bi bi-exclamation-triangle-fill"></i><span>Backdated entry — past date</span></div>
-
+    <!-- Mode -->
     <div class="mb-3">
       <label class="form-label">Work Mode</label>
       <div class="mode-toggle">
@@ -397,202 +514,80 @@
 
     <div class="tt-div"></div>
 
-    <div class="log-mode-switcher">
-      <button class="lms-btn lms-active-step" id="lmsStepBtn" onclick="setLogMode('step')"><i class="bi bi-ui-checks me-1"></i>Step by Step</button>
-      <button class="lms-btn" id="lmsOverallBtn" onclick="setLogMode('overall')"><i class="bi bi-clock-history me-1"></i>Overall Log</button>
+    <!-- Hint -->
+    <div class="hint-box">
+      <strong>How it works:</strong> Tap <strong>TIME IN</strong> to start — saves instantly.
+      Tap <strong>BREAK IN/OUT</strong> during lunch. Tap <strong>TIME OUT</strong> to complete.
+      Use <strong>+ Add Session</strong> for afternoon shifts — they merge automatically.
     </div>
 
-    <!-- STEP MODE PANEL -->
-    <div id="stepModePanel">
-      <div class="step-wizard">
-        <div class="step-item active" id="si-0"><div class="step-circle"><i class="bi bi-box-arrow-in-right"></i></div><div class="step-label">Time In</div><div class="step-line"></div></div>
-        <div class="step-item" id="si-1"><div class="step-circle"><i class="bi bi-cup-hot"></i></div><div class="step-label">Break</div><div class="step-line"></div></div>
-        <div class="step-item" id="si-2"><div class="step-circle"><i class="bi bi-box-arrow-right"></i></div><div class="step-label">Time Out</div><div class="step-line"></div></div>
-        <div class="step-item" id="si-3"><div class="step-circle"><i class="bi bi-plus-lg"></i></div><div class="step-label">Add More</div></div>
-      </div>
-
-      <div class="today-sessions-wrap" id="todaySessionsWrap" style="display:none;">
-        <div class="sc-lbl mb-2" style="font-size:9px;letter-spacing:2px;color:var(--text-muted);">TODAY'S SESSIONS</div>
-        <div id="todaySessionsList"></div>
-      </div>
-
-      <!-- Step 0: Time In -->
-      <div class="step-panel active" id="sp-0">
-        <div class="step-action-box">
-          <div class="step-action-title"><i class="bi bi-box-arrow-in-right me-1" style="color:var(--accent)"></i>Record Time In</div>
-          <div class="stamp-col">
-            <label class="form-label">TIME IN</label>
-            <input type="time" class="form-control" id="timeIn" oninput="updatePreview()">
-            <button class="stamp-btn sb-in mt-1" onclick="stampNow('timeIn',this)">⏱ STAMP NOW</button>
-          </div>
+    <!-- Live session panel -->
+    <div class="live-session-panel" id="liveSessionPanel">
+      <div class="lsp-header">
+        <div class="lsp-session-badge">
+          <span class="lsp-session-num" id="lspSessionNum">SESSION 1</span>
+          <span id="lspStatusText">Not started</span>
         </div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;padding:0 2px;">
-          <i class="bi bi-info-circle me-1" style="color:var(--accent)"></i>Stamp Time In now and complete later, or continue to next steps.
-        </div>
-        <div class="step-nav-row">
-          <button class="step-skip-btn" onclick="goStep(1)"><i class="bi bi-skip-forward me-1"></i>Add Break</button>
-          <button class="step-skip-btn" onclick="goStep(2)"><i class="bi bi-skip-end me-1"></i>Time Out</button>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div class="lsp-status-dot" id="lspDot"></div>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text-muted)" id="lspElapsed"></span>
         </div>
       </div>
 
-      <!-- Step 1: Break -->
-      <div class="step-panel" id="sp-1">
-        <div class="step-action-box">
-          <div class="step-action-title"><i class="bi bi-cup-hot me-1" style="color:var(--accent3)"></i>Lunch Break</div>
-          <div class="stamp-row">
-            <div class="stamp-col">
-              <label class="form-label">BREAK START</label>
-              <input type="time" class="form-control" id="lunchIn" oninput="updatePreview()">
-              <button class="stamp-btn sb-lin mt-1" onclick="stampNow('lunchIn',this)">⏱ STAMP IN</button>
-            </div>
-            <div class="stamp-arrow">→</div>
-            <div class="stamp-col">
-              <label class="form-label">BREAK END</label>
-              <input type="time" class="form-control" id="lunchOut" oninput="updatePreview()">
-              <button class="stamp-btn sb-lout mt-1" onclick="stampNow('lunchOut',this)">⏱ STAMP OUT</button>
-            </div>
-          </div>
+      <!-- 2x2 Stamp Grid -->
+      <div class="stamp-grid">
+        <!-- TIME IN -->
+        <div class="stamp-cell cell-active" id="cell-timein">
+          <div class="cell-label" style="color:var(--accent)"><i class="bi bi-box-arrow-in-right"></i> Time In</div>
+          <div class="cell-time-display" id="disp-timein"><span class="ctd-empty">--:--</span></div>
+          <button class="stamp-action-btn sab-in" id="btn-timein" onclick="stampField('timein')">
+            <i class="bi bi-play-fill"></i> STAMP IN
+          </button>
         </div>
-        <div class="step-nav-row">
-          <button class="step-skip-btn" onclick="goStep(0)"><i class="bi bi-arrow-left me-1"></i>Back</button>
-          <button class="step-skip-btn" onclick="skipBreak()"><i class="bi bi-skip-forward me-1"></i>No Break</button>
+        <!-- TIME OUT -->
+        <div class="stamp-cell cell-disabled" id="cell-timeout">
+          <div class="cell-label" style="color:var(--accent2)"><i class="bi bi-box-arrow-right"></i> Time Out</div>
+          <div class="cell-time-display" id="disp-timeout"><span class="ctd-empty">--:--</span></div>
+          <button class="stamp-action-btn sab-out" id="btn-timeout" onclick="stampField('timeout')" disabled>
+            <i class="bi bi-stop-fill"></i> STAMP OUT
+          </button>
         </div>
-      </div>
-
-      <!-- Step 2: Time Out -->
-      <div class="step-panel" id="sp-2">
-        <div class="step-action-box">
-          <div class="step-action-title"><i class="bi bi-box-arrow-right me-1" style="color:var(--accent2)"></i>Record Time Out</div>
-          <div class="stamp-col">
-            <label class="form-label">TIME OUT</label>
-            <input type="time" class="form-control" id="timeOut" oninput="updatePreview()">
-            <button class="stamp-btn sb-out mt-1" onclick="stampNow('timeOut',this)">⏱ STAMP NOW</button>
-          </div>
+        <!-- BREAK IN -->
+        <div class="stamp-cell cell-disabled" id="cell-breakin">
+          <div class="cell-label" style="color:var(--accent3)"><i class="bi bi-cup-hot"></i> Break In</div>
+          <div class="cell-time-display" id="disp-breakin"><span class="ctd-empty">--:--</span></div>
+          <button class="stamp-action-btn sab-brkin" id="btn-breakin" onclick="stampField('breakin')" disabled>
+            <i class="bi bi-pause-fill"></i> BREAK IN
+          </button>
         </div>
-        <div class="step-nav-row">
-          <button class="step-skip-btn" onclick="goStep(1)"><i class="bi bi-arrow-left me-1"></i>Back</button>
+        <!-- BREAK OUT -->
+        <div class="stamp-cell cell-disabled" id="cell-breakout">
+          <div class="cell-label" style="color:var(--warn)"><i class="bi bi-arrow-return-right"></i> Break Out</div>
+          <div class="cell-time-display" id="disp-breakout"><span class="ctd-empty">--:--</span></div>
+          <button class="stamp-action-btn sab-brkout" id="btn-breakout" onclick="stampField('breakout')" disabled>
+            <i class="bi bi-play-circle"></i> BREAK OUT
+          </button>
         </div>
       </div>
 
-      <!-- Step 3: Add Another -->
-      <div class="step-panel" id="sp-3">
-        <div class="step-action-box" style="border-color:rgba(79,142,247,0.25);">
-          <div class="step-action-title" style="color:var(--accent)"><i class="bi bi-plus-circle me-1"></i>Add Another Session Today</div>
-          <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:12px;">Afternoon shift or second clock-in — will merge with today's record.</div>
-          <div class="stamp-row">
-            <div class="stamp-col">
-              <label class="form-label">NEW TIME IN</label>
-              <input type="time" class="form-control" id="timeIn2" oninput="updatePreview()">
-              <button class="stamp-btn sb-in mt-1" onclick="stampNow('timeIn2',this)">⏱ STAMP NOW</button>
-            </div>
-            <div class="stamp-arrow">→</div>
-            <div class="stamp-col">
-              <label class="form-label">NEW TIME OUT</label>
-              <input type="time" class="form-control" id="timeOut2" oninput="updatePreview()">
-              <button class="stamp-btn sb-out mt-1" onclick="stampNow('timeOut2',this)">⏱ STAMP NOW</button>
-            </div>
-          </div>
-        </div>
-        <div class="step-nav-row">
-          <button class="step-skip-btn" onclick="goStep(2)"><i class="bi bi-arrow-left me-1"></i>Back</button>
-        </div>
+      <!-- Status bar -->
+      <div class="status-bar">
+        <div class="lsp-status-dot" id="sbDot"></div>
+        <div class="sb-msg" id="sbMsg">Select a date and tap TIME IN to start</div>
       </div>
 
-      <div class="preview-box mt-3">
-        <div class="prev-lbl mb-1">Session Preview</div>
-        <div class="prev-hrs" id="previewHours">-- hrs</div>
-        <div class="prev-sub" id="previewSub">Enter times above</div>
+      <!-- Session timeline -->
+      <div class="session-timeline" id="sessionTimeline" style="display:none;">
+        <div class="stl-title">Today's Sessions</div>
+        <div id="sessionTimelineList"></div>
       </div>
 
-      <button class="partial-save-btn" id="partialSaveBtn" onclick="savePartialSession()">
-        <i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER
-      </button>
-
-      <button class="save-btn" id="saveBtn" onclick="saveSession()">
-        <i class="bi bi-check2-circle me-2"></i>SAVE SESSION
-      </button>
-    </div>
-
-    <!-- OVERALL MODE PANEL -->
-    <div id="overallModePanel" style="display:none;">
-      <div class="today-sessions-wrap" id="todaySessionsWrapOverall" style="display:none;">
-        <div class="sc-lbl mb-2" style="font-size:9px;letter-spacing:2px;color:var(--text-muted);">TODAY'S SESSIONS</div>
-        <div id="todaySessionsListOverall"></div>
-      </div>
-
-      <div class="overall-log-box">
-        <div class="overall-log-title"><i class="bi bi-clock-history"></i>Log Full Session</div>
-
-        <div class="sc-lbl mb-1">SESSION 1</div>
-        <div class="overall-row">
-          <div>
-            <label class="form-label">TIME IN</label>
-            <input type="time" class="form-control" id="ov-timeIn" oninput="updateOverallPreview()">
-            <!-- FIX: use stampNowOv (dedicated function, no 3rd arg) -->
-            <button class="stamp-btn sb-in mt-1" style="width:100%" onclick="stampNowOv('ov-timeIn',this)">⏱ STAMP IN</button>
-          </div>
-          <div class="overall-arrow">→</div>
-          <div>
-            <label class="form-label">TIME OUT</label>
-            <input type="time" class="form-control" id="ov-timeOut" oninput="updateOverallPreview()">
-            <button class="stamp-btn sb-out mt-1" style="width:100%" onclick="stampNowOv('ov-timeOut',this)">⏱ STAMP OUT</button>
-          </div>
-        </div>
-
-        <div class="overall-divider"></div>
-        <div class="overall-break-toggle" id="ovBreakToggle" onclick="toggleOverallBreak()">
-          <span>☕</span><span id="ovBreakToggleText">Include Lunch Break</span>
-          <i class="bi bi-chevron-down ms-auto" id="ovBreakChevron"></i>
-        </div>
-        <div id="ovBreakFields" style="display:none;">
-          <div class="overall-row">
-            <div>
-              <label class="form-label">BREAK START</label>
-              <input type="time" class="form-control" id="ov-lunchIn" oninput="updateOverallPreview()">
-              <button class="stamp-btn sb-lin mt-1" style="width:100%" onclick="stampNowOv('ov-lunchIn',this)">⏱ STAMP</button>
-            </div>
-            <div class="overall-arrow">→</div>
-            <div>
-              <label class="form-label">BREAK END</label>
-              <input type="time" class="form-control" id="ov-lunchOut" oninput="updateOverallPreview()">
-              <button class="stamp-btn sb-lout mt-1" style="width:100%" onclick="stampNowOv('ov-lunchOut',this)">⏱ STAMP</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="overall-divider"></div>
-        <div id="ovSession2Wrap" style="display:none;">
-          <div class="sc-lbl mb-1">SESSION 2 (OPTIONAL)</div>
-          <div class="overall-row">
-            <div>
-              <label class="form-label">TIME IN</label>
-              <input type="time" class="form-control" id="ov-timeIn2" oninput="updateOverallPreview()">
-              <button class="stamp-btn sb-in mt-1" style="width:100%" onclick="stampNowOv('ov-timeIn2',this)">⏱ STAMP IN</button>
-            </div>
-            <div class="overall-arrow">→</div>
-            <div>
-              <label class="form-label">TIME OUT</label>
-              <input type="time" class="form-control" id="ov-timeOut2" oninput="updateOverallPreview()">
-              <button class="stamp-btn sb-out mt-1" style="width:100%" onclick="stampNowOv('ov-timeOut2',this)">⏱ STAMP OUT</button>
-            </div>
-          </div>
-          <button class="step-skip-btn" style="margin-top:4px;" onclick="removeOvSession2()"><i class="bi bi-dash me-1"></i>Remove Session 2</button>
-          <div class="overall-divider"></div>
-        </div>
-        <button class="step-skip-btn" id="ovAddSession2Btn" onclick="addOvSession2()" style="margin-bottom:4px;">
-          <i class="bi bi-plus me-1"></i>Add Another Session
+      <!-- Add session row -->
+      <div class="add-session-bar">
+        <button class="add-sess-btn" id="addSessionBtn" onclick="addNewSession()" disabled>
+          <i class="bi bi-plus-lg"></i> Add Another Session
         </button>
       </div>
-
-      <div class="preview-box mt-2 mb-2">
-        <div class="prev-lbl mb-1">Session Preview</div>
-        <div class="prev-hrs" id="ovPreviewHours">-- hrs</div>
-        <div class="prev-sub" id="ovPreviewSub">Enter times above</div>
-      </div>
-
-      <button class="save-btn" id="ovSaveBtn" onclick="saveOverallSession()">
-        <i class="bi bi-check2-circle me-2"></i>SAVE SESSION
-      </button>
     </div>
 
   </div>
@@ -607,292 +602,417 @@ const db = createClient(
   "sb_publishable_x1zmt6S6U7_p_pWDjsVh3w_tfe7iWzw"
 );
 
-let allLogs        = [];
-let currentMode    = 'Office';
-let currentStep    = 0;
-let currentLogMode = 'step';
-let ovBreakOpen    = false;
-let ovSession2Open = false;
+/* ══ STATE ══ */
+let allLogs     = [];
+let currentMode = 'Office';
 
-/* ══ INJECT FORM ══ */
+/*
+  activeDayRecord = null | { id, date, mode, sessions:[], total_hours }
+  Each session in sessions = { time_in, time_out, break_in, break_out, hours, partial }
+    partial = true  → time_out not yet stamped
+*/
+let activeDayRecord  = null;
+let activeSessionIdx = 0;   // which session in sessions[] we're currently editing
+let elapsedTimer     = null;
+
+/* ══ CLOCK ══ */
+function tickClock() {
+  const n = new Date();
+  document.getElementById('liveClock').textContent = n.toLocaleTimeString('en-US',{hour12:false});
+  const de = document.getElementById('liveDate');
+  if (de) de.textContent = n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+}
+tickClock(); setInterval(tickClock, 1000);
+
+/* ══ DATE HELPERS ══ */
+function todayISO() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+function isoToDateStr(iso) {
+  return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
+}
+function nowISO(dateVal) {
+  const n = new Date();
+  const d = new Date(dateVal+'T00:00:00');
+  d.setHours(n.getHours(), n.getMinutes(), n.getSeconds(), 0);
+  return d.toISOString();
+}
+function fmtTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+function hhmm() {
+  const n = new Date();
+  return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+}
+
+/* ══ FORM INJECT ══ */
 function injectForm(slotId) {
   const slot = document.getElementById(slotId);
   if (!slot) return;
   slot.innerHTML = '';
   slot.appendChild(document.getElementById('formTpl').content.cloneNode(true));
-  const d = document.getElementById('sessionDate');
-  if (d) { d.value = todayISO(); updateDateTag(); }
   setMode(currentMode);
-  currentStep    = 0;
-  ovBreakOpen    = false;
-  ovSession2Open = false;
-  setLogMode(currentLogMode);
-  goStep(0);
-  renderTodaySummary();
-  checkPartialBanner();
-  syncPartialSaveBtn();
+  const d = document.getElementById('sessionDate');
+  if (d) { d.value = todayISO(); }
+  onDateChange();
 }
 
-/* ══ LOG MODE SWITCHER ══ */
-function setLogMode(mode) {
-  currentLogMode = mode;
-  const sp = document.getElementById('stepModePanel');
-  const op = document.getElementById('overallModePanel');
-  const sb = document.getElementById('lmsStepBtn');
-  const ob = document.getElementById('lmsOverallBtn');
-  if (!sp) return;
-  if (mode === 'step') {
-    sp.style.display = 'block'; op.style.display = 'none';
-    sb.className = 'lms-btn lms-active-step'; ob.className = 'lms-btn';
-  } else {
-    sp.style.display = 'none'; op.style.display = 'block';
-    sb.className = 'lms-btn'; ob.className = 'lms-btn lms-active-overall';
-    renderTodaySummaryOverall();
-    updateOverallPreview();
-  }
-}
+/* ══ DATE CHANGE → load existing day record ══ */
+async function onDateChange() {
+  clearElapsedTimer();
+  activeDayRecord  = null;
+  activeSessionIdx = 0;
 
-/* ══ OVERALL BREAK TOGGLE ══ */
-function toggleOverallBreak() {
-  ovBreakOpen = !ovBreakOpen;
-  const fields  = document.getElementById('ovBreakFields');
-  const toggle  = document.getElementById('ovBreakToggle');
-  const chevron = document.getElementById('ovBreakChevron');
-  const txt     = document.getElementById('ovBreakToggleText');
-  if (!fields) return;
-  fields.style.display = ovBreakOpen ? 'block' : 'none';
-  toggle.classList.toggle('active', ovBreakOpen);
-  chevron.className  = ovBreakOpen ? 'bi bi-chevron-up ms-auto' : 'bi bi-chevron-down ms-auto';
-  txt.textContent    = ovBreakOpen ? 'Break Included' : 'Include Lunch Break';
-  if (!ovBreakOpen) { ['ov-lunchIn','ov-lunchOut'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; }); }
-  updateOverallPreview();
-}
-
-function addOvSession2() {
-  ovSession2Open = true;
-  const w = document.getElementById('ovSession2Wrap'); if (w) w.style.display = 'block';
-  const b = document.getElementById('ovAddSession2Btn'); if (b) b.style.display = 'none';
-}
-function removeOvSession2() {
-  ovSession2Open = false;
-  const w = document.getElementById('ovSession2Wrap'); if (w) w.style.display = 'none';
-  const b = document.getElementById('ovAddSession2Btn'); if (b) b.style.display = '';
-  ['ov-timeIn2','ov-timeOut2'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
-  updateOverallPreview();
-}
-
-/* ══ PARTIAL SAVE BTN VISIBILITY ══ */
-function syncPartialSaveBtn() {
-  const btn = document.getElementById('partialSaveBtn');
-  if (!btn) return;
-  const ti = document.getElementById('timeIn')?.value || '';
-  const to = document.getElementById('timeOut')?.value || '';
-  btn.style.display = (currentStep === 0 && ti && !to) ? 'block' : 'none';
-}
-
-/* ══ STEP WIZARD ══ */
-function goStep(n) {
-  currentStep = n;
-  for (let i = 0; i <= 3; i++) {
-    document.getElementById('sp-' + i)?.classList.remove('active');
-    const si = document.getElementById('si-' + i);
-    if (si) si.classList.remove('active', 'done');
-  }
-  for (let i = 0; i < n; i++) document.getElementById('si-' + i)?.classList.add('done');
-  document.getElementById('sp-' + n)?.classList.add('active');
-  document.getElementById('si-' + n)?.classList.add('active');
-  syncPartialSaveBtn();
-}
-function skipBreak() {
-  ['lunchIn','lunchOut'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
-  goStep(2);
-}
-
-/* ══ CLOCK ══ */
-function tickClock() {
-  const n = new Date();
-  document.getElementById('liveClock').textContent = n.toLocaleTimeString('en-US', { hour12: false });
-  const de = document.getElementById('liveDate');
-  if (de) de.textContent = n.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
-}
-tickClock(); setInterval(tickClock, 1000);
-
-/* ══ DATE ══ */
-function todayISO() {
-  const n = new Date();
-  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
-}
-function setToday() { const el = document.getElementById('sessionDate'); if (el) { el.value = todayISO(); updateDateTag(); } }
-function updateDateTag() {
-  const el = document.getElementById('sessionDate'), tag = document.getElementById('dateTag'), ban = document.getElementById('bdBanner');
+  const el  = document.getElementById('sessionDate');
+  const tag = document.getElementById('dateTag');
   if (!el || !tag) return;
   const val = el.value;
-  if (!val) { tag.textContent = ''; return; }
-  const picked = new Date(val + 'T00:00:00'), todayM = new Date(); todayM.setHours(0,0,0,0);
-  const diff = Math.round((todayM - picked) / 86400000);
-  if (diff === 0)    { tag.innerHTML = '<span style="color:var(--accent3)">✓ Today</span>'; ban?.classList.remove('show'); }
-  else if (diff > 0) { tag.innerHTML = `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`; ban?.classList.add('show'); }
-  else               { tag.innerHTML = '<span style="color:var(--warn)">⚠ Future date</span>'; ban?.classList.add('show'); }
-  renderTodaySummary(); renderTodaySummaryOverall();
+  if (!val) { tag.textContent=''; refreshStampUI(); return; }
+
+  const picked = new Date(val+'T00:00:00');
+  const todayM = new Date(); todayM.setHours(0,0,0,0);
+  const diff   = Math.round((todayM - picked) / 86400000);
+  if      (diff === 0) tag.innerHTML = '<span style="color:var(--accent3)">✓ Today</span>';
+  else if (diff  >  0) tag.innerHTML = `<span style="color:var(--warn)">⚠ ${diff} day${diff>1?'s':''} ago</span>`;
+  else                 tag.innerHTML = '<span style="color:var(--warn)">⚠ Future date</span>';
+
+  // Load existing record for this date
+  const dateStr = isoToDateStr(val);
+  const { data } = await db.from('logs').select('*').eq('date', dateStr);
+  if (data && data.length) {
+    activeDayRecord  = data[0];
+    // find last session (partial or complete — we append after all complete ones)
+    const sessions   = activeDayRecord.sessions || [];
+    const partialIdx = sessions.findIndex(s => s.partial);
+    activeSessionIdx = partialIdx >= 0 ? partialIdx : sessions.length; // point to next slot
+  }
+  refreshStampUI();
+  renderSessionTimeline();
+}
+
+function setToday() {
+  const el = document.getElementById('sessionDate');
+  if (el) { el.value = todayISO(); onDateChange(); }
 }
 
 /* ══ MODE ══ */
 function setMode(m) {
   currentMode = m;
   const wm = document.getElementById('workMode'); if (wm) wm.value = m;
-  const bo = document.getElementById('btnOffice'); if (bo) bo.className = 'mode-btn' + (m==='Office'?' mo-office':'');
-  const bh = document.getElementById('btnHome');   if (bh) bh.className = 'mode-btn' + (m==='Home'?' mo-home':'');
+  const bo = document.getElementById('btnOffice'); if (bo) bo.className = 'mode-btn' + (m==='Office' ? ' mo-office' : '');
+  const bh = document.getElementById('btnHome');   if (bh) bh.className = 'mode-btn' + (m==='Home'   ? ' mo-home'  : '');
 }
 
-/* ══ PARSE TIME ══ */
-function parseTime(str, base) {
-  const [h, m] = str.split(':').map(Number);
-  const d = base ? new Date(base + 'T00:00:00') : new Date();
-  d.setHours(h, m, 0, 0); return d;
+/* ══ REFRESH STAMP UI ══ */
+/*
+  Derive which buttons are enabled / which cells are "done/active/disabled"
+  based on activeDayRecord and activeSessionIdx
+*/
+function refreshStampUI() {
+  const sessions      = activeDayRecord?.sessions || [];
+  const curSession    = sessions[activeSessionIdx] || null;  // may be null (new session)
+  const hasTimein     = !!curSession?.time_in;
+  const hasTimeout    = !!curSession?.time_out;
+  const hasBreakIn    = !!curSession?.break_in;
+  const hasBreakOut   = !!curSession?.break_out;
+  const isPartial     = hasTimein && !hasTimeout;
+
+  // session num label
+  const numEl = document.getElementById('lspSessionNum');
+  if (numEl) numEl.textContent = `SESSION ${activeSessionIdx + 1}`;
+
+  const dot = document.getElementById('lspDot');
+  const statusText = document.getElementById('lspStatusText');
+  const sbDot = document.getElementById('sbDot');
+  const sbMsg = document.getElementById('sbMsg');
+
+  // ── Time In cell ──
+  setCellState('timein',
+    hasTimein ? 'done' : 'active',
+    hasTimein,   // stamped look
+    hasTimein    // disable further stamping
+  );
+  setDisp('timein', hasTimein ? fmtTime(curSession.time_in) : null);
+
+  // ── Time Out cell ──
+  setCellState('timeout',
+    hasTimeout ? 'done' : (isPartial ? 'active' : 'disabled'),
+    hasTimeout,
+    hasTimeout || !isPartial
+  );
+  setDisp('timeout', hasTimeout ? fmtTime(curSession.time_out) : null);
+
+  // ── Break In cell ──
+  setCellState('breakin',
+    hasBreakIn ? 'done' : (isPartial && !hasBreakIn ? 'active' : 'disabled'),
+    hasBreakIn,
+    hasBreakIn || !isPartial || hasTimeout
+  );
+  setDisp('breakin', hasBreakIn ? fmtTime(curSession.break_in) : null);
+
+  // ── Break Out cell ──
+  setCellState('breakout',
+    hasBreakOut ? 'done' : (hasBreakIn && !hasBreakOut ? 'active' : 'disabled'),
+    hasBreakOut,
+    hasBreakOut || !hasBreakIn || hasTimeout
+  );
+  setDisp('breakout', hasBreakOut ? fmtTime(curSession.break_out) : null);
+
+  // ── Status dot + message ──
+  if (!hasTimein) {
+    if (dot)        { dot.className='lsp-status-dot'; }
+    if (statusText) statusText.textContent = sessions.length > 0 ? 'New session ready' : 'Not started';
+    if (sbDot)      sbDot.className='lsp-status-dot';
+    if (sbMsg)      sbMsg.textContent = document.getElementById('sessionDate')?.value ? 'Tap TIME IN to start the session' : 'Select a date first';
+  } else if (isPartial && hasBreakIn && !hasBreakOut) {
+    if (dot)        { dot.className='lsp-status-dot break'; }
+    if (statusText) statusText.textContent = 'On break';
+    if (sbDot)      sbDot.className='lsp-status-dot break';
+    if (sbMsg)      sbMsg.innerHTML = `On break since <span class="sb-elapsed">${fmtTime(curSession.break_in)}</span> — tap BREAK OUT to resume`;
+  } else if (isPartial) {
+    if (dot)        { dot.className='lsp-status-dot active'; }
+    if (statusText) statusText.textContent = 'In progress';
+    if (sbDot)      sbDot.className='lsp-status-dot active';
+    startElapsedTimer(curSession.time_in);
+    if (sbMsg)      sbMsg.innerHTML = `Clocked in at <span class="sb-elapsed">${fmtTime(curSession.time_in)}</span>`;
+  } else if (hasTimeout) {
+    if (dot)        { dot.className='lsp-status-dot'; }
+    if (statusText) statusText.textContent = 'Session complete';
+    if (sbDot)      sbDot.className='lsp-status-dot';
+    if (sbMsg)      sbMsg.textContent = `Session ${activeSessionIdx+1} complete · ${calcSessionHours(curSession).toFixed(2)} hrs`;
+  }
+
+  // ── Add Session btn ──
+  const addBtn = document.getElementById('addSessionBtn');
+  if (addBtn) {
+    // Enable if the current session is complete (has time_out) or if there are past complete sessions and no current open one
+    const allComplete = sessions.every(s => !s.partial && s.time_out);
+    addBtn.disabled = !(hasTimeout || (allComplete && sessions.length > 0));
+  }
 }
 
-/* ══ PREVIEW — STEP MODE ══ */
-function updatePreview() {
-  const g = id => document.getElementById(id)?.value || '';
-  const ti=g('timeIn'), to=g('timeOut'), li=g('lunchIn'), lo=g('lunchOut'), ti2=g('timeIn2'), to2=g('timeOut2');
-  const ph = document.getElementById('previewHours'), ps = document.getElementById('previewSub');
-  if (!ph) return;
-  let totalHrs = 0, parts = [];
-  if (ti && to) { let s1=(parseTime(to)-parseTime(ti))/3600000; if (li&&lo) s1-=(parseTime(lo)-parseTime(li))/3600000; if (s1>0){totalHrs+=s1; parts.push(`${s1.toFixed(2)}h`);} }
-  if (ti2 && to2) { const s2=(parseTime(to2)-parseTime(ti2))/3600000; if (s2>0){totalHrs+=s2; parts.push(`${s2.toFixed(2)}h`);} }
-  if (totalHrs <= 0) { ph.textContent=ti&&!to?`⏳ Clocked in · ${ti}`:'-- hrs'; ps.textContent=ti&&!to?'Waiting for Time Out…':'Enter times above'; }
-  else { ph.textContent=`${totalHrs.toFixed(2)} hrs`; ps.textContent=parts.length>1?`${parts.join(' + ')} = ${totalHrs.toFixed(2)}h`:(li&&lo?`${totalHrs.toFixed(2)}h · lunch excluded`:'No lunch break'); }
-  syncPartialSaveBtn();
+function setCellState(field, state, stamped, disabledBtn) {
+  const cell = document.getElementById(`cell-${field}`);
+  const btn  = document.getElementById(`btn-${field}`);
+  if (!cell || !btn) return;
+  cell.className = `stamp-cell cell-${state}`;
+  btn.disabled = !!disabledBtn;
+  if (stamped) btn.classList.add('stamped-state');
+  else         btn.classList.remove('stamped-state');
 }
 
-/* ══ PREVIEW — OVERALL MODE ══ */
-function updateOverallPreview() {
-  const g = id => document.getElementById(id)?.value || '';
-  const ti=g('ov-timeIn'), to=g('ov-timeOut'), li=g('ov-lunchIn'), lo=g('ov-lunchOut'), ti2=g('ov-timeIn2'), to2=g('ov-timeOut2');
-  const ph = document.getElementById('ovPreviewHours'), ps = document.getElementById('ovPreviewSub');
-  if (!ph) return;
-  let totalHrs = 0, parts = [];
-  if (ti && to) { let s1=(parseTime(to)-parseTime(ti))/3600000; if (ovBreakOpen&&li&&lo) s1-=(parseTime(lo)-parseTime(li))/3600000; if (s1>0){totalHrs+=s1; parts.push(`${s1.toFixed(2)}h`);} }
-  if (ovSession2Open && ti2 && to2) { const s2=(parseTime(to2)-parseTime(ti2))/3600000; if (s2>0){totalHrs+=s2; parts.push(`${s2.toFixed(2)}h`);} }
-  if (totalHrs <= 0) { ph.textContent='-- hrs'; ps.textContent='Enter times above'; return; }
-  ph.textContent=`${totalHrs.toFixed(2)} hrs`;
-  ps.textContent=parts.length>1?`${parts.join(' + ')} = ${totalHrs.toFixed(2)}h`:(ovBreakOpen&&li&&lo?`${totalHrs.toFixed(2)}h · lunch excluded`:'No lunch break');
+function setDisp(field, timeStr) {
+  const el = document.getElementById(`disp-${field}`);
+  if (!el) return;
+  if (timeStr) {
+    el.innerHTML = `<span style="color:var(--success)">${timeStr}</span>`;
+  } else {
+    el.innerHTML = `<span class="ctd-empty">--:--</span>`;
+  }
 }
 
-/* ══ STAMP — STEP MODE ══ */
-function stampNow(fieldId, btn) {
-  const n=new Date(), hh=String(n.getHours()).padStart(2,'0'), mm=String(n.getMinutes()).padStart(2,'0');
-  const el = document.getElementById(fieldId); if (el) el.value = `${hh}:${mm}`;
-  updatePreview();
-  btn.classList.add('stamped','pulse'); btn.innerHTML=`✓ ${hh}:${mm}`;
-  setTimeout(()=>btn.classList.remove('pulse'),280);
-  const lbl={timeIn:'Time In',timeOut:'Time Out',lunchIn:'Break Start',lunchOut:'Break End',timeIn2:'Session 2 In',timeOut2:'Session 2 Out'};
-  toast(`Stamped ${hh}:${mm} → ${lbl[fieldId]||fieldId}`);
-  if (fieldId==='timeIn'   && currentStep===0) setTimeout(()=>goStep(1),400);
-  if (fieldId==='lunchOut' && currentStep===1) setTimeout(()=>goStep(2),400);
-  if (fieldId==='timeOut'  && currentStep===2) setTimeout(()=>goStep(3),400);
+/* ══ ELAPSED TIMER ══ */
+function startElapsedTimer(timeInISO) {
+  clearElapsedTimer();
+  const el = document.getElementById('lspElapsed');
+  if (!el) return;
+  function tick() {
+    const diff = Math.floor((Date.now() - new Date(timeInISO)) / 1000);
+    const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
+    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  tick();
+  elapsedTimer = setInterval(tick, 1000);
+}
+function clearElapsedTimer() {
+  if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+  const el = document.getElementById('lspElapsed');
+  if (el) el.textContent = '';
 }
 
-/* ══ STAMP — OVERALL MODE (FIXED: own function, correct field ID used directly) ══ */
-function stampNowOv(fieldId, btn) {
-  const n=new Date(), hh=String(n.getHours()).padStart(2,'0'), mm=String(n.getMinutes()).padStart(2,'0');
-  const el = document.getElementById(fieldId); if (el) el.value = `${hh}:${mm}`;
-  updateOverallPreview();
-  btn.classList.add('stamped','pulse'); btn.innerHTML=`✓ ${hh}:${mm}`;
-  setTimeout(()=>btn.classList.remove('pulse'),280);
-  toast(`Stamped ${hh}:${mm}`);
+/* ══ CORE STAMP FUNCTION ══ */
+async function stampField(field) {
+  const dateVal = document.getElementById('sessionDate')?.value;
+  if (!dateVal) { toast('Select a date first', 'error'); return; }
+
+  const btn = document.getElementById(`btn-${field}`);
+  if (btn) { btn.disabled = true; btn.classList.add('pulse'); setTimeout(()=>btn.classList.remove('pulse'), 280); }
+
+  const nowIso  = nowISO(dateVal);
+  const dateStr = isoToDateStr(dateVal);
+  const timeStr = hhmm();
+
+  // ── TIME IN ──
+  if (field === 'timein') {
+    await _stampTimeIn(dateStr, dateVal, nowIso, timeStr);
+    return;
+  }
+
+  // All other stamps require an active (partial) session
+  if (!activeDayRecord) { toast('No active session — stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
+  const sessions   = [...(activeDayRecord.sessions || [])];
+  const curSession = sessions[activeSessionIdx];
+  if (!curSession) { toast('Session not found', 'error'); if(btn) btn.disabled=false; return; }
+
+  if (field === 'breakin') {
+    if (!curSession.time_in)  { toast('Stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
+    if (curSession.break_in)  { toast('Break already started', 'warn'); if(btn) btn.disabled=false; return; }
+    sessions[activeSessionIdx] = { ...curSession, break_in: nowIso };
+    toast(`☕ Break In · ${timeStr}`, 'info');
+  } else if (field === 'breakout') {
+    if (!curSession.break_in) { toast('Stamp Break In first', 'error'); if(btn) btn.disabled=false; return; }
+    if (curSession.break_out) { toast('Break already ended', 'warn'); if(btn) btn.disabled=false; return; }
+    sessions[activeSessionIdx] = { ...curSession, break_out: nowIso };
+    toast(`🔄 Break Out · ${timeStr} — back to work!`, 'success');
+  } else if (field === 'timeout') {
+    if (!curSession.time_in)  { toast('Stamp Time In first', 'error'); if(btn) btn.disabled=false; return; }
+    if (curSession.time_out)  { toast('Already clocked out', 'warn'); if(btn) btn.disabled=false; return; }
+    const h = calcSessionHoursFromTimes(curSession.time_in, nowIso, curSession.break_in, curSession.break_out);
+    if (h <= 0) { toast('Time Out must be after Time In', 'error'); if(btn) btn.disabled=false; return; }
+    sessions[activeSessionIdx] = { ...curSession, time_out: nowIso, hours: parseFloat(h.toFixed(2)), partial: false };
+    clearElapsedTimer();
+    toast(`✅ Time Out · ${timeStr} · ${h.toFixed(2)} hrs logged`, 'success');
+  }
+
+  await _persistUpdate(sessions, dateStr, dateVal);
 }
 
-/* ══ TODAY SESSIONS SUMMARY ══ */
-function _buildSessionsSummary(dateVal, wrapId, listId) {
-  const wrap = document.getElementById(wrapId), list = document.getElementById(listId);
+/* ══ STAMP TIME IN ══ */
+async function _stampTimeIn(dateStr, dateVal, nowIso, timeStr) {
+  const newSession = { time_in: nowIso, time_out: null, break_in: null, break_out: null, hours: 0, partial: true };
+
+  if (activeDayRecord) {
+    // Append new session to existing record
+    const sessions = [...(activeDayRecord.sessions || [])];
+    const hasOpen  = sessions.some(s => s.partial);
+    if (hasOpen) { toast('Close the open session first (stamp Time Out)', 'warn'); return; }
+    activeSessionIdx = sessions.length;
+    sessions.push(newSession);
+    await _persistUpdate(sessions, dateStr, dateVal);
+  } else {
+    // Brand new day record
+    const { data, error } = await db.from('logs').insert({
+      date:        dateStr,
+      mode:        currentMode,
+      time_in:     nowIso,
+      time_out:    null,
+      lunch_in:    null,
+      lunch_out:   null,
+      total_hours: 0,
+      sessions:    [newSession],
+      status:      'partial'
+    }).select();
+    if (error) { toast('Error saving', 'error'); return; }
+    activeDayRecord  = data[0];
+    activeSessionIdx = 0;
+    toast(`⏱ Time In · ${timeStr} — session started!`, 'success');
+    await renderLogs();
+    refreshStampUI();
+    renderSessionTimeline();
+  }
+}
+
+/* ══ PERSIST UPDATE ══ */
+async function _persistUpdate(sessions, dateStr, dateVal) {
+  const completeSessions = sessions.filter(s => !s.partial && s.time_out);
+  const totalHours       = completeSessions.reduce((acc,s) => acc + parseFloat(s.hours||0), 0);
+  const hasPartial       = sessions.some(s => s.partial);
+  const allIns           = sessions.map(s => s.time_in).filter(Boolean);
+  const allOuts          = completeSessions.map(s => s.time_out).filter(Boolean);
+  const firstIn          = allIns.length  ? allIns.reduce((a,b) => a<b?a:b)  : null;
+  const lastOut          = allOuts.length ? allOuts.reduce((a,b) => a>b?a:b) : null;
+
+  // Primary lunch from first session (legacy compat)
+  const firstLunchIn  = sessions[0]?.break_in  || null;
+  const firstLunchOut = sessions[0]?.break_out || null;
+
+  const payload = {
+    mode:        currentMode,
+    time_in:     firstIn,
+    time_out:    lastOut,
+    lunch_in:    firstLunchIn,
+    lunch_out:   firstLunchOut,
+    total_hours: parseFloat(totalHours.toFixed(2)),
+    sessions:    sessions,
+    status:      hasPartial ? 'partial' : 'complete'
+  };
+
+  const { data, error } = await db.from('logs').update(payload).eq('id', activeDayRecord.id).select();
+  if (error) { toast('Error updating session', 'error'); return; }
+  activeDayRecord = data[0];
+  await renderLogs();
+  refreshStampUI();
+  renderSessionTimeline();
+}
+
+/* ══ ADD NEW SESSION ══ */
+function addNewSession() {
+  if (!document.getElementById('sessionDate')?.value) { toast('Select a date first', 'error'); return; }
+  // Reset the stamp grid to blank for a new session
+  // activeSessionIdx is already set to sessions.length (next slot) by refreshStampUI logic
+  const sessions = activeDayRecord?.sessions || [];
+  // Point to next session
+  activeSessionIdx = sessions.length;
+  // Clear displays
+  ['timein','timeout','breakin','breakout'].forEach(f => setDisp(f, null));
+  setCellState('timein',   'active',   false, false);
+  setCellState('timeout',  'disabled', false, true);
+  setCellState('breakin',  'disabled', false, true);
+  setCellState('breakout', 'disabled', false, true);
+  const numEl = document.getElementById('lspSessionNum');
+  if (numEl) numEl.textContent = `SESSION ${activeSessionIdx + 1}`;
+  const sbMsg = document.getElementById('sbMsg');
+  if (sbMsg) sbMsg.textContent = `Session ${activeSessionIdx + 1} ready — tap TIME IN`;
+  const addBtn = document.getElementById('addSessionBtn');
+  if (addBtn) addBtn.disabled = true;
+  clearElapsedTimer();
+  const el = document.getElementById('lspElapsed'); if (el) el.textContent = '';
+  const dot = document.getElementById('lspDot'); if (dot) dot.className = 'lsp-status-dot';
+  const statusText = document.getElementById('lspStatusText'); if (statusText) statusText.textContent = 'New session ready';
+  toast(`Session ${activeSessionIdx + 1} ready — tap TIME IN`, 'info');
+}
+
+/* ══ SESSION TIMELINE ══ */
+function renderSessionTimeline() {
+  const wrap = document.getElementById('sessionTimeline');
+  const list = document.getElementById('sessionTimelineList');
   if (!wrap || !list) return;
-  const dateStr = dateVal ? new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'}) : null;
-  const existing = allLogs.filter(l => l.date === dateStr);
-  if (!existing.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block'; list.innerHTML = ''; let dayTotal = 0;
-  existing.forEach(log => {
-    const sessions = log.sessions || [{time_in:log.time_in,time_out:log.time_out,hours:log.total_hours}];
-    sessions.forEach((s,j) => {
-      const item = document.createElement('div'); item.className = 'today-session-item';
-      if (s.partial) {
-        const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        item.innerHTML = `<span class="tsi-times">S${j+1}: ${ti} – ???</span><span class="tsi-open">IN PROGRESS</span>`;
-      } else {
-        const ti = new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        const to = new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        dayTotal += parseFloat(s.hours || 0);
-        item.innerHTML = `<span class="tsi-times">S${j+1}: ${ti}–${to}</span><span class="tsi-hours">${parseFloat(s.hours||0).toFixed(2)}h</span>`;
-      }
-      list.appendChild(item);
-    });
+  const sessions = activeDayRecord?.sessions || [];
+  if (!sessions.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block'; list.innerHTML = '';
+  let dayTotal = 0;
+  sessions.forEach((s, i) => {
+    const item = document.createElement('div');
+    const isPartial = s.partial || !s.time_out;
+    item.className = `stl-item${isPartial ? ' stl-open' : ''}`;
+    const h = parseFloat(s.hours||0);
+    dayTotal += h;
+    const breakTag = s.break_in ? `<span class="stl-break-tag">☕ ${fmtTime(s.break_in)}${s.break_out ? '–'+fmtTime(s.break_out) : ' →?'}</span>` : '';
+    if (isPartial) {
+      item.innerHTML = `<span class="stl-times">S${i+1}: ${fmtTime(s.time_in)} → <span style="color:var(--warn)">IN PROGRESS</span> ${breakTag}</span><span class="stl-hrs" style="color:var(--warn)">open</span>`;
+    } else {
+      item.innerHTML = `<span class="stl-times">S${i+1}: ${fmtTime(s.time_in)} – ${fmtTime(s.time_out)} ${breakTag}</span><span class="stl-hrs" style="color:var(--accent3)">${h.toFixed(2)}h</span>`;
+    }
+    list.appendChild(item);
   });
   if (dayTotal > 0) {
-    const t = document.createElement('div'); t.className = 'tsi-total-row mt-1';
-    t.innerHTML = `<span class="tsi-total-lbl">Total today</span><span class="tsi-total-hrs">${dayTotal.toFixed(2)}h</span>`;
+    const t = document.createElement('div'); t.className = 'stl-total-row';
+    t.innerHTML = `<span style="color:var(--text-muted)">Total today</span><span style="color:var(--accent)">${dayTotal.toFixed(2)} hrs</span>`;
     list.appendChild(t);
   }
 }
-function renderTodaySummary()        { _buildSessionsSummary(document.getElementById('sessionDate')?.value, 'todaySessionsWrap', 'todaySessionsList'); }
-function renderTodaySummaryOverall() { _buildSessionsSummary(document.getElementById('sessionDate')?.value, 'todaySessionsWrapOverall', 'todaySessionsListOverall'); }
 
-/* ══ PARTIAL SAVE (Time In only) ══ */
-async function savePartialSession() {
-  const g = id => document.getElementById(id)?.value || '';
-  const ti = g('timeIn'), dateVal = g('sessionDate');
-  if (!dateVal) { toast('Select a date', 'error'); return; }
-  if (!ti)      { toast('Enter Time In first', 'error'); return; }
-
-  const btn = document.getElementById('partialSaveBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING…';
-
-  const dateStr = new Date(dateVal+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-  const partialSession = { time_in:parseTime(ti,dateVal).toISOString(), time_out:null, lunch_in:null, lunch_out:null, hours:0, partial:true };
-
-  const { data:existing } = await db.from('logs').select('*').eq('date', dateStr);
-  if (existing?.length) {
-    const prev = existing[0];
-    const prevSessions = (prev.sessions || [{time_in:prev.time_in,time_out:prev.time_out,lunch_in:prev.lunch_in,lunch_out:prev.lunch_out,hours:prev.total_hours}]);
-    if (prevSessions.some(s => s.partial)) {
-      toast('Already have an open session — complete it first', 'warn');
-      btn.disabled = false; btn.innerHTML = '<i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER'; return;
-    }
-    await db.from('logs').update({ sessions:[...prevSessions,partialSession], status:'partial' }).eq('id', prev.id);
-  } else {
-    await db.from('logs').insert({ date:dateStr, mode:currentMode, time_in:parseTime(ti,dateVal).toISOString(), time_out:null, lunch_in:null, lunch_out:null, total_hours:0, sessions:[partialSession], status:'partial' });
-  }
-
-  toast(`⏳ Time In saved · ${ti} — come back to complete!`, 'success');
-  btn.disabled = false; btn.innerHTML = '<i class="bi bi-cloud-upload me-2"></i>SAVE TIME IN · COMPLETE LATER';
-  await renderLogs(); checkPartialBanner();
+/* ══ CALC HOURS ══ */
+function calcSessionHours(s) {
+  return calcSessionHoursFromTimes(s.time_in, s.time_out, s.break_in, s.break_out);
 }
-
-/* ══ CHECK PARTIAL BANNER ══ */
-function checkPartialBanner() {
-  const banner = document.getElementById('partialBanner'), bText = document.getElementById('partialBannerText');
-  if (!banner) return;
-  const todayStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-  const partial = allLogs.find(l => l.date === todayStr && (l.sessions||[]).some(s => s.partial));
-  if (partial) {
-    const ps = (partial.sessions||[]).find(s => s.partial);
-    if (bText && ps) bText.textContent = `Open session · Clocked in at ${new Date(ps.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
-    banner.classList.add('show');
-  } else { banner.classList.remove('show'); }
-}
-
-/* ══ RESUME PARTIAL SESSION ══ */
-function resumePartialSession() {
-  const todayStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-  const partial  = allLogs.find(l => l.date === todayStr && (l.sessions||[]).some(s => s.partial));
-  if (!partial) return;
-  const ps = (partial.sessions||[]).find(s => s.partial);
-  if (ps) {
-    const d = new Date(ps.time_in);
-    const tiEl = document.getElementById('timeIn');
-    if (tiEl) tiEl.value = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-  }
-  setLogMode('step'); goStep(2); updatePreview();
-  toast('Resumed — stamp your Time Out to complete', 'success');
+function calcSessionHoursFromTimes(ti, to, bi, bo) {
+  if (!ti || !to) return 0;
+  let h = (new Date(to) - new Date(ti)) / 3600000;
+  if (bi && bo) h -= (new Date(bo) - new Date(bi)) / 3600000;
+  return Math.max(0, h);
 }
 
 /* ══ TABS ══ */
@@ -903,164 +1023,13 @@ function switchTab(tab) {
   document.getElementById('bnav-' + tab)?.classList.add('active');
   if (tab === 'log') injectForm('tab-log');
   if (tab === 'reports') updateReports();
-  window.scrollTo(0, 0);
-}
-
-/* ══ SAVE SESSION — STEP MODE ══ */
-async function saveSession() {
-  const g = id => document.getElementById(id)?.value || '';
-  const ti=g('timeIn'), to=g('timeOut'), li=g('lunchIn'), lo=g('lunchOut'), ti2=g('timeIn2'), to2=g('timeOut2');
-  const dateVal = g('sessionDate');
-  if (!dateVal) { toast('Select a session date', 'error'); return; }
-
-  // FIX 1: If only Time In filled → auto partial save
-  if (ti && !to && !ti2) { await savePartialSession(); return; }
-  if (!ti && !ti2) { toast('Enter at least one Time In', 'error'); return; }
-
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING...';
-
-  const pickedDate = new Date(dateVal+'T00:00:00');
-  const dateStr    = pickedDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-  const isBack     = Math.round((new Date().setHours(0,0,0,0) - pickedDate) / 86400000) > 0;
-  const sessions   = [];
-
-  // FIX 2: On step 3 (Add More), only session2 exists — merge into existing record
-  // Build session from main time fields only if they have values
-  if (ti && to) {
-    const start = parseTime(ti,dateVal), end = parseTime(to,dateVal);
-    let h = (end-start)/3600000;
-    if (li && lo) h -= (parseTime(lo,dateVal)-parseTime(li,dateVal))/3600000;
-    if (h > 0) sessions.push({ time_in:start.toISOString(), time_out:end.toISOString(), lunch_in:li?parseTime(li,dateVal).toISOString():null, lunch_out:lo?parseTime(lo,dateVal).toISOString():null, hours:parseFloat(h.toFixed(2)) });
-  }
-  if (ti2 && to2) {
-    const s2=parseTime(ti2,dateVal), e2=parseTime(to2,dateVal), h2=(e2-s2)/3600000;
-    if (h2 > 0) sessions.push({ time_in:s2.toISOString(), time_out:e2.toISOString(), lunch_in:null, lunch_out:null, hours:parseFloat(h2.toFixed(2)) });
-  }
-
-  if (!sessions.length) { toast('Total hours must be positive', 'error'); btn.disabled=false; btn.innerHTML='<i class="bi bi-check2-circle me-2"></i>SAVE SESSION'; return; }
-
-  await _persistSessions(sessions, dateVal, dateStr, isBack);
-  btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION';
-}
-
-/* ══ SAVE SESSION — OVERALL MODE (FIXED: reads ov- fields, break respects toggle) ══ */
-async function saveOverallSession() {
-  const g = id => document.getElementById(id)?.value || '';
-  // Read from ov- prefixed fields
-  const ti  = g('ov-timeIn'),  to  = g('ov-timeOut');
-  const li  = g('ov-lunchIn'), lo  = g('ov-lunchOut');
-  const ti2 = g('ov-timeIn2'), to2 = g('ov-timeOut2');
-  const dateVal = g('sessionDate');
-
-  if (!dateVal) { toast('Select a session date', 'error'); return; }
-  if (!ti)  { toast('Enter Time In', 'error'); return; }
-  if (!to)  { toast('Enter Time Out', 'error'); return; }
-
-  const btn = document.getElementById('ovSaveBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>SAVING...';
-
-  const pickedDate = new Date(dateVal+'T00:00:00');
-  const dateStr    = pickedDate.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'2-digit'});
-  const isBack     = Math.round((new Date().setHours(0,0,0,0) - pickedDate) / 86400000) > 0;
-  const sessions   = [];
-
-  const start = parseTime(ti,dateVal), end = parseTime(to,dateVal);
-  let h = (end-start)/3600000;
-  // Only deduct break if toggle is open AND both times are filled
-  if (ovBreakOpen && li && lo) h -= (parseTime(lo,dateVal)-parseTime(li,dateVal))/3600000;
-
-  if (h > 0) sessions.push({
-    time_in:  start.toISOString(),
-    time_out: end.toISOString(),
-    lunch_in:  (ovBreakOpen && li) ? parseTime(li,dateVal).toISOString() : null,
-    lunch_out: (ovBreakOpen && lo) ? parseTime(lo,dateVal).toISOString() : null,
-    hours: parseFloat(h.toFixed(2))
-  });
-
-  if (ovSession2Open && ti2 && to2) {
-    const s2=parseTime(ti2,dateVal), e2=parseTime(to2,dateVal), h2=(e2-s2)/3600000;
-    if (h2 > 0) sessions.push({ time_in:s2.toISOString(), time_out:e2.toISOString(), lunch_in:null, lunch_out:null, hours:parseFloat(h2.toFixed(2)) });
-  }
-
-  if (!sessions.length) { toast('Hours must be positive — check your times', 'error'); btn.disabled=false; btn.innerHTML='<i class="bi bi-check2-circle me-2"></i>SAVE SESSION'; return; }
-
-  await _persistSessions(sessions, dateVal, dateStr, isBack);
-  btn.disabled = false; btn.innerHTML = '<i class="bi bi-check2-circle me-2"></i>SAVE SESSION';
-}
-
-/* ══ SHARED PERSIST ══ */
-async function _persistSessions(sessions, dateVal, dateStr, isBack) {
-  const totalHours = sessions.reduce((s,x) => s + x.hours, 0);
-  const { data:existing, error:fe } = await db.from('logs').select('*').eq('date', dateStr);
-  if (fe) { toast('Error checking logs', 'error'); return; }
-
-  if (existing?.length) {
-    const prev = existing[0];
-    // Strip out any partial sessions — they're being completed/replaced
-    const prevSessions = (prev.sessions || [{time_in:prev.time_in,time_out:prev.time_out,lunch_in:prev.lunch_in,lunch_out:prev.lunch_out,hours:prev.total_hours}]).filter(s => !s.partial);
-    const allSessions  = [...prevSessions, ...sessions];
-    const newTotal     = allSessions.reduce((s,x) => s + parseFloat(x.hours||0), 0);
-    const allIns       = allSessions.map(s => new Date(s.time_in));
-    const allOuts      = allSessions.map(s => new Date(s.time_out));
-    const { error:ue } = await db.from('logs').update({
-      mode:        currentMode,
-      time_in:     new Date(Math.min(...allIns)).toISOString(),
-      time_out:    new Date(Math.max(...allOuts)).toISOString(),
-      lunch_in:    sessions[0]?.lunch_in  || prev.lunch_in  || null,
-      lunch_out:   sessions[0]?.lunch_out || prev.lunch_out || null,
-      total_hours: parseFloat(newTotal.toFixed(2)),
-      sessions:    allSessions,
-      status:      'complete'
-    }).eq('id', prev.id);
-    if (ue) { toast('Error updating record', 'error'); return; }
-    toast(`➕ Session added · Today total: ${newTotal.toFixed(2)} hrs`);
-  } else {
-    const { error } = await db.from('logs').insert({
-      date:        dateStr,
-      mode:        currentMode,
-      time_in:     sessions[0].time_in,
-      time_out:    sessions[sessions.length-1].time_out,
-      lunch_in:    sessions[0]?.lunch_in  || null,
-      lunch_out:   sessions[0]?.lunch_out || null,
-      total_hours: parseFloat(totalHours.toFixed(2)),
-      sessions:    sessions,
-      status:      'complete'
-    });
-    if (error) { toast('Error saving session', 'error'); return; }
-    toast(isBack ? `Backdated · ${dateStr} · ${totalHours.toFixed(2)} hrs` : `Saved · ${totalHours.toFixed(2)} hrs logged`);
-  }
-
-  clearForm(); await renderLogs(); checkPartialBanner();
-}
-
-/* ══ CLEAR FORM ══ */
-function clearForm() {
-  ['timeIn','timeOut','lunchIn','lunchOut','timeIn2','timeOut2','ov-timeIn','ov-timeOut','ov-lunchIn','ov-lunchOut','ov-timeIn2','ov-timeOut2'].forEach(id => { const el=document.getElementById(id); if (el) el.value=''; });
-  setToday(); updatePreview(); goStep(0);
-  renderTodaySummary(); renderTodaySummaryOverall(); syncPartialSaveBtn();
-  ovBreakOpen = false; ovSession2Open = false;
-  const bf=document.getElementById('ovBreakFields'); if(bf) bf.style.display='none';
-  const s2w=document.getElementById('ovSession2Wrap'); if(s2w) s2w.style.display='none';
-  const s2b=document.getElementById('ovAddSession2Btn'); if(s2b) s2b.style.display='';
-  const bt=document.getElementById('ovBreakToggle'); if(bt) bt.classList.remove('active');
-  const bTxt=document.getElementById('ovBreakToggleText'); if(bTxt) bTxt.textContent='Include Lunch Break';
-  const bChev=document.getElementById('ovBreakChevron'); if(bChev) bChev.className='bi bi-chevron-down ms-auto';
-  updateOverallPreview();
-}
-
-/* ══ WEEK ══ */
-function getWeek(d) {
-  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
-  const day=d.getUTCDay()||7; d.setUTCDate(d.getUTCDate()+4-day);
-  const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return Math.ceil((((d-ys)/86400000)+1)/7);
+  window.scrollTo(0,0);
 }
 
 /* ══ RENDER LOGS ══ */
 async function renderLogs() {
-  const { data, error } = await db.from('logs').select('*').order('id', { ascending:false });
-  if (error) { toast('Failed to load logs', 'error'); return; }
+  const { data, error } = await db.from('logs').select('*').order('id',{ascending:false});
+  if (error) { toast('Failed to load logs','error'); return; }
   allLogs = data || [];
 
   const today=new Date(), cw=getWeek(today);
@@ -1082,24 +1051,30 @@ async function renderLogs() {
 
   const sv=document.getElementById('monthPicker')?.value;
   const n=new Date(); const [sY,sM]=sv?sv.split('-').map(Number):[n.getFullYear(),n.getMonth()+1];
-  const filtered=allLogs.filter(l=>{ const d=new Date(l.time_in); return d.getFullYear()===sY&&(d.getMonth()+1)===sM; });
-
+  const filtered=allLogs.filter(l=>{ if (!l.time_in) return false; const d=new Date(l.time_in); return d.getFullYear()===sY&&(d.getMonth()+1)===sM; });
   renderTable(filtered); renderCards(filtered);
-  renderTodaySummary(); renderTodaySummaryOverall(); checkPartialBanner();
+}
+
+function getWeek(d) {
+  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const day=d.getUTCDay()||7; d.setUTCDate(d.getUTCDate()+4-day);
+  const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d-ys)/86400000)+1)/7);
 }
 
 function sessionsText(log) {
   const sessions=log.sessions;
   if (!sessions||!sessions.length) {
-    const ti=new Date(log.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    const to=log.time_out?new Date(log.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'???';
+    const ti=fmtTime(log.time_in);
+    const to=log.time_out?fmtTime(log.time_out):'???';
     return `${ti} – ${to}`;
   }
   return sessions.map((s,i)=>{
-    if (s.partial) { const ti=new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); return `<span style="display:block">${i+1}. ${ti} – <span style="color:var(--warn)">IN PROGRESS</span></span>`; }
-    const ti=new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    const to=new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    return `<span style="display:block">${i+1}. ${ti}–${to} <span style="color:var(--accent)">(${parseFloat(s.hours).toFixed(2)}h)</span></span>`;
+    if (s.partial||!s.time_out) {
+      return `<span style="display:block">${i+1}. ${fmtTime(s.time_in)} – <span style="color:var(--warn)">IN PROGRESS</span></span>`;
+    }
+    const brk = s.break_in ? ` ☕` : '';
+    return `<span style="display:block">${i+1}. ${fmtTime(s.time_in)}–${fmtTime(s.time_out)} <span style="color:var(--accent)">(${parseFloat(s.hours).toFixed(2)}h)</span>${brk}</span>`;
   }).join('');
 }
 
@@ -1112,10 +1087,10 @@ function renderTable(rows) {
     const hc=isPartial?'':(h>=8?'h-hi':h>=6?'h-mid':'h-lo');
     const mc=isPartial?'b-open':(l.mode==='Office'?'b-office':'b-home');
     const mi=l.mode==='Office'?'🏢':'🏠';
-    const lunch=l.lunch_in&&l.lunch_out?`${new Date(l.lunch_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}–${new Date(l.lunch_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`:'<span style="color:var(--text-dim)">—</span>';
+    const lunch=l.lunch_in&&l.lunch_out?`${fmtTime(l.lunch_in)}–${fmtTime(l.lunch_out)}`:'<span style="color:var(--text-dim)">—</span>';
     const totalDisp=isPartial?'<span style="color:var(--warn)">⏳ Open</span>':`${h.toFixed(2)}h`;
     const tr=document.createElement('tr'); tr.style.animationDelay=`${i*30}ms`;
-    tr.innerHTML=`<td style="color:var(--text-muted)">${l.date}</td><td><span class="badge ${mc}">${mi} ${isPartial?'OPEN':l.mode.toUpperCase()}</span></td><td style="font-size:11px;line-height:1.6">${sessionsText(l)}</td><td style="font-size:10px">${lunch}</td><td class="${hc}">${totalDisp}</td><td><button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-lg"></i></button></td>`;
+    tr.innerHTML=`<td style="color:var(--text-muted)">${l.date}</td><td><span class="badge ${mc}">${mi} ${isPartial?'OPEN':l.mode.toUpperCase()}</span></td><td style="font-size:11px;line-height:1.8">${sessionsText(l)}</td><td style="font-size:10px">${lunch}</td><td class="${hc}">${totalDisp}</td><td><button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-lg"></i></button></td>`;
     tb.appendChild(tr);
   });
 }
@@ -1129,18 +1104,18 @@ function renderCards(rows) {
     const hc=isPartial?'h-lo':(h>=8?'h-hi':h>=6?'h-mid':'h-lo');
     const mc=isPartial?'b-open':(l.mode==='Office'?'b-office':'b-home');
     const mi=l.mode==='Office'?'🏢':'🏠';
-    const sessions=l.sessions||[{time_in:l.time_in,time_out:l.time_out,hours:l.total_hours}];
-    const lunch=l.lunch_in&&l.lunch_out?`${new Date(l.lunch_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}–${new Date(l.lunch_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`:'No break';
+    const sessions=l.sessions||[{time_in:l.time_in,time_out:l.time_out,break_in:l.lunch_in,break_out:l.lunch_out,hours:l.total_hours}];
     const c=document.createElement('div');
     c.className=`log-card${isPartial?' lc-open':''}`; c.style.animationDelay=`${i*30}ms`;
     const subsHtml=sessions.map((s,j)=>{
-      if (s.partial) { const tin=new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); return `<div class="lc-sub"><span>S${j+1}: ${tin} – ???</span><span class="tsi-open" style="font-size:10px">IN PROGRESS</span></div>`; }
-      const tin=new Date(s.time_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      const tout=new Date(s.time_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      return `<div class="lc-sub"><span>S${j+1}: ${tin}–${tout}</span><span class="lcs-hrs">${parseFloat(s.hours).toFixed(2)}h</span></div>`;
+      const brk = (s.break_in||s.lunch_in) ? `<span style="color:var(--accent3);margin-left:4px">☕${fmtTime(s.break_in||s.lunch_in)}</span>` : '';
+      if (s.partial||!s.time_out) {
+        return `<div class="lc-sub"><span>S${j+1}: ${fmtTime(s.time_in)} – <span style="color:var(--warn)">IN PROGRESS</span>${brk}</span></div>`;
+      }
+      return `<div class="lc-sub"><span>S${j+1}: ${fmtTime(s.time_in)}–${fmtTime(s.time_out)}${brk}</span><span class="lcs-hrs">${parseFloat(s.hours||0).toFixed(2)}h</span></div>`;
     }).join('');
-    const totalDisp=isPartial?'<span class="tsi-open" style="font-size:12px">IN PROGRESS</span>':`<span class="lc-hrs ${hc}">${h.toFixed(2)}h</span>`;
-    c.innerHTML=`<div class="lc-top"><div><div class="lc-date">${l.date}</div><span class="badge ${mc} mt-1">${mi} ${isPartial?'OPEN SESSION':l.mode.toUpperCase()}</span></div><div class="d-flex align-items-center gap-2">${totalDisp}<button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-circle"></i></button></div></div><div class="lc-sub-sessions">${subsHtml}</div><div class="lc-row mt-2"><span><i class="bi bi-cup-hot" style="color:var(--accent3)"></i>${lunch}</span></div>`;
+    const totalDisp=isPartial?'<span style="color:var(--warn);font-size:12px">⏳ IN PROGRESS</span>':`<span class="lc-hrs ${hc}">${h.toFixed(2)}h</span>`;
+    c.innerHTML=`<div class="lc-top"><div><div class="lc-date">${l.date}</div><span class="badge ${mc} mt-1">${mi} ${isPartial?'OPEN SESSION':l.mode.toUpperCase()}</span></div><div class="d-flex align-items-center gap-2">${totalDisp}<button class="del-btn" onclick="deleteLog(${l.id})"><i class="bi bi-x-circle"></i></button></div></div><div class="lc-sub-sessions">${subsHtml}</div>`;
     w.appendChild(c);
   });
 }
@@ -1148,7 +1123,8 @@ function renderCards(rows) {
 async function deleteLog(id) {
   if (!confirm('Delete this session?')) return;
   const { error }=await db.from('logs').delete().eq('id',id);
-  if (error) toast('Failed to delete','error'); else { toast('Session deleted'); renderLogs(); }
+  if (error) toast('Failed to delete','error');
+  else { toast('Session deleted'); if (activeDayRecord?.id===id) { activeDayRecord=null; activeSessionIdx=0; refreshStampUI(); renderSessionTimeline(); } renderLogs(); }
 }
 
 function updateReports() {
@@ -1176,12 +1152,13 @@ function toast(msg, type='success') {
 const _now=new Date();
 const mpEl=document.getElementById('monthPicker');
 if (mpEl) mpEl.value=`${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}`;
+
 function tryDesktopForm() {
   const slot=document.getElementById('desktopFormSlot');
-  if (slot&&window.innerWidth>=992&&!slot.children.length) injectForm('desktopFormSlot');
+  if (slot && window.innerWidth>=992 && !slot.children.length) injectForm('desktopFormSlot');
 }
 tryDesktopForm();
-window.addEventListener('resize',tryDesktopForm);
+window.addEventListener('resize', tryDesktopForm);
 renderLogs();
 </script>
 </body>
